@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -182,61 +181,123 @@
             <div class="card p-4 shadow-sm border-0 border-start border-5 border-danger">
                 <h5 class="fw-bold mb-3">Add New Bus Route</h5>
                 <form id="routeForm">
+                    <!-- Basic Info -->
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="small text-muted">Bus Name</label>
-                            <input type="text" id="busName" class="form-control" placeholder="e.g. Blue Bird Exp" required>
+                            <label class="small text-muted">Service Category</label>
+                            <select id="category" class="form-select" onchange="toggleRouteForm()">
+                                <option value="Private Bus">Private Bus</option>
+                                <option value="Public Bus (KSRTC)">Transport (KSRTC)</option> 
+                                <option value="Interstate">Interstate</option>
+                                <option value="Institution">Institution (Polytechnic)</option>
+                            </select>
                         </div>
                         <div class="col-md-6">
                             <label class="small text-muted">Bus Number</label>
                             <input type="text" id="busNumber" class="form-control" placeholder="e.g. KL-01-AB-1234" required style="text-transform: uppercase;">
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="small text-muted">Service Category</label>
-                        <select id="category" class="form-select">
-                            <!-- Section 1 -->
-                            <option value="Private Bus">Private Bus</option>
-                            <!-- Section 2: Renamed from Public Bus to Transport -->
-                            <option value="Public Bus (KSRTC)">Transport (KSRTC)</option> 
-                            <!-- Section 3: Added -->
-                            <option value="Interstate">Interstate</option>
-                            <!-- Section 4: Added -->
-                            <option value="Institution">Institution</option>
-                        </select>
-                    </div>
-                    
-                    <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">Route Stops & Timing</h6>
-                    <div id="stops-container">
-                        <!-- Start -->
-                        <div class="input-group mb-2">
-                            <span class="input-group-text bg-success text-white fw-bold" style="width: 60px;">Start</span>
-                            <input type="text" id="startPoint" class="form-control" placeholder="Start Location" required>
-                            <input type="time" id="startTime" class="form-control" style="max-width: 130px;" required>
+
+                    <!-- STANDARD FORM (Private/Transport/Interstate) -->
+                    <div id="standard-route-form">
+                        <div class="mb-3">
+                            <label class="small text-muted">Bus Name</label>
+                            <input type="text" id="busName" class="form-control" placeholder="e.g. Blue Bird Exp">
                         </div>
-                        <!-- Via 1 -->
-                        <div class="input-group mb-2">
-                            <span class="input-group-text fw-bold" style="width: 60px;">Via</span>
-                            <input type="text" class="form-control stop-loc" placeholder="Intermediate Stop">
-                            <input type="time" class="form-control stop-time" style="max-width: 130px;">
-                        </div>
-                        <!-- Via 2 -->
-                        <div class="input-group mb-2">
-                            <span class="input-group-text fw-bold" style="width: 60px;">Via</span>
-                            <input type="text" class="form-control stop-loc" placeholder="Intermediate Stop">
-                            <input type="time" class="form-control stop-time" style="max-width: 130px;">
-                        </div>
-                        <!-- End -->
-                        <div class="input-group mb-2">
-                            <span class="input-group-text bg-danger text-white fw-bold" style="width: 60px;">End</span>
-                            <input type="text" id="endPoint" class="form-control" placeholder="Destination" required>
-                            <input type="time" id="endTime" class="form-control" style="max-width: 130px;" required>
+                        <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">Route Stops & Timing</h6>
+                        <div id="stops-container">
+                            <!-- Start -->
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-success text-white fw-bold" style="width: 60px;">Start</span>
+                                <input type="text" id="startPoint" class="form-control" placeholder="Start Location">
+                                <input type="time" id="startTime" class="form-control" style="max-width: 130px;">
+                            </div>
+                            <!-- Vias -->
+                            <div class="input-group mb-2">
+                                <span class="input-group-text fw-bold" style="width: 60px;">Via</span>
+                                <input type="text" class="form-control stop-loc" placeholder="Intermediate Stop">
+                                <input type="time" class="form-control stop-time" style="max-width: 130px;">
+                            </div>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text fw-bold" style="width: 60px;">Via</span>
+                                <input type="text" class="form-control stop-loc" placeholder="Intermediate Stop">
+                                <input type="time" class="form-control stop-time" style="max-width: 130px;">
+                            </div>
+                            <!-- End -->
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-danger text-white fw-bold" style="width: 60px;">End</span>
+                                <input type="text" id="endPoint" class="form-control" placeholder="Destination">
+                                <input type="time" id="endTime" class="form-control" style="max-width: 130px;">
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="text-end mt-2">
-                         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="alert('Please fill the Via fields. Dynamic add feature coming soon.')">+ Add More Stops</button>
+
+                    <!-- INSTITUTION FORM (Hidden by default) -->
+                    <div id="institution-route-form" class="d-none">
+                        <div class="alert alert-info small"><i class="fas fa-info-circle me-2"></i>Configure Morning & Evening Trips separately.</div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="small text-muted">District</label>
+                                <select id="instDistrict" class="form-select">
+                                    <option value="">Select District</option>
+                                    <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                                    <option value="Kollam">Kollam</option>
+                                    <option value="Pathanamthitta">Pathanamthitta</option>
+                                    <option value="Alappuzha">Alappuzha</option>
+                                    <option value="Kottayam">Kottayam</option>
+                                    <option value="Idukki">Idukki</option>
+                                    <option value="Ernakulam">Ernakulam</option>
+                                    <option value="Thrissur">Thrissur</option>
+                                    <option value="Palakkad">Palakkad</option>
+                                    <option value="Malappuram">Malappuram</option>
+                                    <option value="Kozhikode">Kozhikode</option>
+                                    <option value="Wayanad">Wayanad</option>
+                                    <option value="Kannur">Kannur</option>
+                                    <option value="Kasaragod">Kasaragod</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted">College Name (Bus Name)</label>
+                                <input type="text" id="instBusName" class="form-control" placeholder="e.g. GPTC Thrissur Bus">
+                            </div>
+                        </div>
+
+                        <!-- Morning Trip -->
+                        <h6 class="text-primary mt-3"><i class="fas fa-sun me-2"></i>Morning Trip (To College)</h6>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Start</span>
+                            <input type="text" id="mornStart" class="form-control" placeholder="District HQ/Stand">
+                            <input type="time" id="mornStartTime" class="form-control">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Via</span>
+                            <input type="text" class="form-control morn-stop" placeholder="Stop">
+                            <input type="time" class="form-control morn-time">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Arr</span>
+                            <input type="text" class="form-control" value="College Campus" disabled>
+                            <input type="time" id="mornArrTime" class="form-control" value="08:50">
+                        </div>
+
+                        <!-- Evening Trip -->
+                        <h6 class="text-primary mt-3"><i class="fas fa-moon me-2"></i>Evening Trip (Return)</h6>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Dep</span>
+                            <input type="text" class="form-control" value="College Campus" disabled>
+                            <input type="time" id="eveDepTime" class="form-control" value="16:15">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">Via</span>
+                            <input type="text" class="form-control eve-stop" placeholder="Stop">
+                            <input type="time" class="form-control eve-time">
+                        </div>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text">End</span>
+                            <input type="text" id="eveEnd" class="form-control" placeholder="District HQ/Stand">
+                            <input type="time" id="eveEndTime" class="form-control">
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-dark w-100 mt-4 fw-bold py-2">
@@ -261,7 +322,7 @@
                                     <th>Bus No.</th>
                                     <th>Name</th>
                                     <th>Category</th>
-                                    <th>Route</th>
+                                    <th>Route Summary</th>
                                     <th class="text-end">Actions</th>
                                 </tr>
                             </thead>
@@ -345,6 +406,18 @@
             document.body.classList.add('dark-mode');
         } else {
             document.body.classList.remove('dark-mode');
+        }
+    };
+
+    // FORM TOGGLE LOGIC
+    window.toggleRouteForm = () => {
+        const cat = document.getElementById('category').value;
+        if(cat === 'Institution') {
+            document.getElementById('standard-route-form').classList.add('d-none');
+            document.getElementById('institution-route-form').classList.remove('d-none');
+        } else {
+            document.getElementById('standard-route-form').classList.remove('d-none');
+            document.getElementById('institution-route-form').classList.add('d-none');
         }
     };
 
@@ -438,16 +511,23 @@
         let html = "";
         snapshot.forEach(docSnap => {
             const bus = docSnap.data();
-            const route = bus.route || [];
-            const start = route.length > 0 ? route[0].name : "N/A";
-            const end = route.length > 0 ? route[route.length-1].name : "N/A";
+            let summary = "";
+
+            if(bus.category === 'Institution') {
+                summary = "Institution: " + (bus.morningRoute ? "Has Morning/Evening Plan" : "No plan");
+            } else {
+                const route = bus.route || [];
+                const start = route.length > 0 ? route[0].name : "N/A";
+                const end = route.length > 0 ? route[route.length-1].name : "N/A";
+                summary = `${start} <i class="fas fa-arrow-right mx-1"></i> ${end}`;
+            }
             
             html += `
                 <tr>
                     <td class="fw-bold">${bus.busNumber}</td>
                     <td>${bus.busName}</td>
                     <td><span class="badge bg-secondary">${bus.category}</span></td>
-                    <td><small class="text-muted">${start} <i class="fas fa-arrow-right mx-1"></i> ${end}</small></td>
+                    <td><small class="text-muted">${summary}</small></td>
                     <td class="text-end">
                         <button class="btn btn-sm btn-outline-danger" onclick="window.deleteRoute('${docSnap.id}')" title="Delete Route">
                             <i class="fas fa-trash"></i>
@@ -493,7 +573,7 @@
         }
     });
 
-    // --- 7. SAVE ROUTE (PRESERVED & UPDATED) ---
+    // --- 7. SAVE ROUTE (UPDATED FOR DYNAMIC FORMS) ---
     document.getElementById('routeForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -502,45 +582,87 @@
         submitBtn.innerHTML = "Saving...";
         submitBtn.disabled = true;
 
-        let stops = [];
+        const category = document.getElementById('category').value;
+        const busNumber = document.getElementById('busNumber').value.toUpperCase();
         
-        // Add Start
-        stops.push({ 
-            name: document.getElementById('startPoint').value, 
-            time: document.getElementById('startTime').value 
-        });
-        
-        // Add Vias
-        document.querySelectorAll('#stops-container .input-group').forEach(div => {
-            if(div.querySelector('.stop-loc')) {
-                const loc = div.querySelector('.stop-loc').value;
-                const time = div.querySelector('.stop-time').value;
-                if(loc && loc.trim() !== "") {
-                    stops.push({ name: loc, time: time || "N/A" });
-                }
-            }
-        });
-        
-        // Add End
-        stops.push({ 
-            name: document.getElementById('endPoint').value, 
-            time: document.getElementById('endTime').value 
-        });
-
-        // Construct Data Object (Matching User App Search Logic)
-        const busData = {
-            busName: document.getElementById('busName').value,
-            busNumber: document.getElementById('busNumber').value.toUpperCase(),
-            category: document.getElementById('category').value,
-            route: stops,
-            // Create keywords for search capability in User App
-            searchKeywords: stops.map(s => s.name.toLowerCase().trim())
+        let busData = {
+            busNumber: busNumber,
+            category: category,
+            busName: "",
+            searchKeywords: []
         };
+
+        if (category === 'Institution') {
+            // -- INSTITUTION LOGIC --
+            const district = document.getElementById('instDistrict').value;
+            const college = document.getElementById('instBusName').value; // Using college name as bus name
+            
+            if(!district || !college) {
+                alert("Please fill District and College Name.");
+                submitBtn.innerHTML = originalText; submitBtn.disabled = false; return;
+            }
+
+            busData.busName = college; // E.g., "Govt Polytechnic Thrissur"
+            busData.district = district;
+
+            // Morning Route Construction
+            const morningRoute = [];
+            morningRoute.push({ name: document.getElementById('mornStart').value, time: document.getElementById('mornStartTime').value });
+            document.querySelectorAll('.morn-stop').forEach((el, idx) => {
+                const time = document.querySelectorAll('.morn-time')[idx].value;
+                if(el.value) morningRoute.push({ name: el.value, time: time });
+            });
+            morningRoute.push({ name: college, time: document.getElementById('mornArrTime').value });
+
+            // Evening Route Construction
+            const eveningRoute = [];
+            eveningRoute.push({ name: college, time: document.getElementById('eveDepTime').value });
+            document.querySelectorAll('.eve-stop').forEach((el, idx) => {
+                const time = document.querySelectorAll('.eve-time')[idx].value;
+                if(el.value) eveningRoute.push({ name: el.value, time: time });
+            });
+            eveningRoute.push({ name: document.getElementById('eveEnd').value, time: document.getElementById('eveEndTime').value });
+
+            busData.morningRoute = morningRoute;
+            busData.eveningRoute = eveningRoute;
+            // Keywords for search: District, College Name
+            busData.searchKeywords = [district.toLowerCase(), college.toLowerCase()];
+
+        } else {
+            // -- STANDARD LOGIC --
+            const name = document.getElementById('busName').value;
+            if(!name) {
+                alert("Please enter Bus Name.");
+                submitBtn.innerHTML = originalText; submitBtn.disabled = false; return;
+            }
+            busData.busName = name;
+
+            let stops = [];
+            stops.push({ 
+                name: document.getElementById('startPoint').value, 
+                time: document.getElementById('startTime').value 
+            });
+            
+            document.querySelectorAll('#stops-container .stop-loc').forEach((el, idx) => {
+                const time = document.querySelectorAll('#stops-container .stop-time')[idx].value;
+                if(el.value) stops.push({ name: el.value, time: time || "N/A" });
+            });
+            
+            stops.push({ 
+                name: document.getElementById('endPoint').value, 
+                time: document.getElementById('endTime').value 
+            });
+
+            busData.route = stops;
+            busData.searchKeywords = stops.map(s => s.name.toLowerCase().trim());
+        }
 
         try {
             await addDoc(collection(db, "routes"), busData);
-            alert("✅ Route Saved Successfully! Check the 'Manage Fleet' tab to view.");
+            alert("✅ Route Saved Successfully!");
             e.target.reset();
+            // Reset visibility
+            toggleRouteForm(); 
         } catch (err) { 
             alert("Error saving route: " + err.message); 
         } finally {
