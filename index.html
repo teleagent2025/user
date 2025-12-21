@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,8 +61,9 @@
         .dark-mode .navbar {
             background-color: #000 !important;
         }
-        .dark-mode .btn-close {
-            filter: invert(1) grayscale(100%) brightness(200%);
+        .dark-mode .bg-white {
+            background-color: #1e1e1e !important;
+            color: white !important;
         }
 
         /* ANIMATED TITLE */
@@ -100,22 +100,70 @@
             background-color: rgba(25, 135, 84, 0.1);
         }
 
-        /* MAP STYLING */
+        /* MAP & TRAIN UI STYLING */
         #map-container { 
             display: none; 
-            height: 400px; 
             margin-top: 20px; 
             border-radius: 10px; 
             border: 2px solid #198754; 
-            position: relative; 
+            overflow: hidden;
+            background: white;
         }
-        #map { height: 100%; width: 100%; border-radius: 8px; }
+        #map { height: 300px; width: 100%; }
+        
+        /* Train Style Timeline */
+        .train-status-panel {
+            max-height: 250px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #ddd;
+        }
+        .dark-mode .train-status-panel {
+            background: #2d2d2d;
+            border-color: #444;
+        }
+        .station-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            position: relative;
+        }
+        .station-list::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 10px;
+            bottom: 10px;
+            width: 4px;
+            background: #e9ecef;
+        }
+        .dark-mode .station-list::before { background: #444; }
+
+        .station-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 20px;
+        }
+        .station-dot {
+            position: absolute;
+            left: 7px;
+            top: 5px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 4px solid #adb5bd;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        .station-item.active .station-dot {
+            border-color: #198754;
+            background: #198754;
+        }
+        .station-time { font-size: 0.85rem; color: #6c757d; }
+        .station-name { font-weight: 600; font-size: 1rem; }
 
         /* UTILS */
-        .time-display {
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
         .timeline {
             border-left: 2px solid #0d6efd;
             padding-left: 20px;
@@ -139,17 +187,18 @@
 </head>
 <body class="bg-light">
 
-<!-- NAVBAR (Fixed Top) -->
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow fixed-top">
     <div class="container-fluid">
-        <!-- Date & Time (Left) -->
         <div class="text-white d-none d-md-block">
             <small id="date-display"></small> | <small id="time-display"></small>
         </div>
         
-        <span class="navbar-brand fw-bold ms-md-3 mx-auto">🚍 TrioTrack</span>
+        <!-- UPDATED LOGO -->
+        <span class="navbar-brand fw-bold ms-md-3 mx-auto">
+            <i class="fas fa-route me-2"></i> TrioTrack
+        </span>
 
-        <!-- Right Side Controls -->
         <div class="d-flex align-items-center gap-2">
             <!-- Theme Toggle -->
             <div class="dropdown">
@@ -161,6 +210,9 @@
                     <li><a class="dropdown-item" href="#" onclick="setTheme('dark')">Dark Mode</a></li>
                 </ul>
             </div>
+            
+            <!-- PARTNER LOGO REMOVED AS REQUESTED -->
+
             <!-- Admin Portal Link -->
             <a href="admin.html" class="btn btn-warning btn-sm fw-bold text-dark text-decoration-none">
                 <i class="fas fa-user-shield"></i> Admin
@@ -169,11 +221,11 @@
     </div>
 </nav>
 
-<div style="margin-top: 80px;"></div> <!-- Spacer for fixed navbar -->
+<div style="margin-top: 80px;"></div>
 
 <div class="container">
 
-    <!-- PAGE 1: WELCOME PAGE -->
+    <!-- PAGE 1: WELCOME -->
     <div id="page-welcome" class="page-section active text-center mt-5">
         <div class="p-4">
             <h1 class="brand-animate mb-0">TRIOTRACK</h1>
@@ -184,9 +236,7 @@
                 <div class="card p-3 shadow-sm mx-auto" style="max-width: 600px;">
                     <h5>About TrioTrack</h5>
                     <p class="small text-muted mb-0">
-                        TrioTrack is your ultimate companion for modern public transportation. 
-                        We connect you to Private, Interstate, Transport, and Institution buses with real-time tracking, 
-                        accurate route planning, and seamless user experience. Reliable, Fast, and Easy.
+                        Connecting Private, Transport, Interstate, and Institution buses with real-time tracking.
                     </p>
                 </div>
             </div>
@@ -195,14 +245,12 @@
                 Get Started <i class="fas fa-arrow-right ms-2"></i>
             </button>
         </div>
-        
-        <!-- Mobile Time Display -->
         <div class="mt-3 d-md-none text-muted">
             <small id="date-display-mobile"></small> <br> <span id="time-display-mobile"></span>
         </div>
     </div>
 
-    <!-- PAGE 2: SECTIONS PAGE -->
+    <!-- PAGE 2: SECTIONS -->
     <div id="page-sections" class="page-section">
         <div class="text-center mb-4">
             <h2 class="fw-bold">Select Service Type</h2>
@@ -210,46 +258,41 @@
         </div>
 
         <div class="row g-4">
-            <!-- Private -->
             <div class="col-md-6">
                 <div class="card section-card p-4 text-center" onclick="selectSection('Private Bus')">
                     <i class="fas fa-bus-alt fa-3x text-primary mb-3"></i>
                     <h4>PRIVATE</h4>
-                    <p class="text-muted small">Connections between major cities and rural areas of districts.</p>
+                    <p class="text-muted small">City and District Connect Services.</p>
                 </div>
             </div>
-            <!-- Transport -->
             <div class="col-md-6">
                 <div class="card section-card p-4 text-center" onclick="selectSection('Public Bus (KSRTC)')">
                     <i class="fas fa-landmark fa-3x text-success mb-3"></i>
                     <h4>TRANSPORT</h4>
-                    <p class="text-muted small">Connections between district to district (KSRTC/Public).</p>
+                    <p class="text-muted small">KSRTC / Public Sector Transport.</p>
                 </div>
             </div>
-            <!-- Interstate -->
             <div class="col-md-6">
                 <div class="card section-card p-4 text-center" onclick="selectSection('Interstate')">
                     <i class="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
                     <h4>INTERSTATE</h4>
-                    <p class="text-muted small">Long-distance connections between state to state.</p>
+                    <p class="text-muted small">Long-distance connections.</p>
                 </div>
             </div>
-            <!-- Institution -->
             <div class="col-md-6">
                 <div class="card section-card p-4 text-center" style="border-top-color: #6c757d;" onclick="selectSection('Institution')">
                     <i class="fas fa-university fa-3x text-secondary mb-3"></i>
                     <h4>INSTITUTION</h4>
-                    <p class="text-muted small">Connection between campuses to main city/district.</p>
+                    <p class="text-muted small">Government Polytechnic Colleges.</p>
                 </div>
             </div>
         </div>
-        
         <div class="text-center mt-4">
              <button onclick="navigateTo('page-welcome')" class="btn btn-outline-secondary btn-sm">Back</button>
         </div>
     </div>
 
-    <!-- PAGE 3: ROUTE FINDER PAGE -->
+    <!-- PAGE 3: ROUTE FINDER / INSTITUTION SEARCH -->
     <div id="page-route" class="page-section">
         <div class="card p-4 shadow-sm">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -257,39 +300,68 @@
                 <button onclick="navigateTo('page-sections')" class="btn btn-sm btn-outline-secondary">Back</button>
             </div>
             
-            <!-- Hidden Input for Logic -->
             <input type="hidden" id="categoryFilter" value="All">
 
-            <div class="row g-2 align-items-center">
-                <div class="col-md-5">
-                    <label class="small text-muted">From</label>
-                    <input type="text" id="source" class="form-control" placeholder="Source (e.g. Stop A)" list="stopOptions">
+            <!-- STANDARD SEARCH UI -->
+            <div id="standard-search-ui">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-5">
+                        <label class="small text-muted">From</label>
+                        <input type="text" id="source" class="form-control" placeholder="Source (e.g. Stop A)" list="stopOptions">
+                    </div>
+                    <div class="col-md-2 text-center pt-3">
+                        <button class="btn btn-outline-primary rounded-circle" onclick="swapLocations()" title="Swap">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="small text-muted">To</label>
+                        <input type="text" id="destination" class="form-control" placeholder="Destination (e.g. Stop B)" list="stopOptions">
+                    </div>
                 </div>
-                
-                <div class="col-md-2 text-center pt-3">
-                    <button class="btn btn-outline-primary rounded-circle" onclick="swapLocations()" title="Swap">
-                        <i class="fas fa-exchange-alt"></i>
-                    </button>
-                </div>
-
-                <div class="col-md-5">
-                    <label class="small text-muted">To</label>
-                    <input type="text" id="destination" class="form-control" placeholder="Destination (e.g. Stop B)" list="stopOptions">
-                </div>
+                <button id="searchBtn" class="btn btn-dark w-100 mt-3 fw-bold">FIND BUS</button>
+                <datalist id="stopOptions"></datalist>
             </div>
-            
-            <button id="searchBtn" class="btn btn-dark w-100 mt-3 fw-bold">FIND BUS</button>
-            
-            <datalist id="stopOptions">
-                <!-- Populated by JS -->
-            </datalist>
+
+            <!-- INSTITUTION SEARCH UI (Hidden by default) -->
+            <div id="institution-search-ui" class="d-none">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="small text-muted">Select District (Kerala)</label>
+                        <select id="districtSelect" class="form-select">
+                            <option value="">-- Select District --</option>
+                            <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                            <option value="Kollam">Kollam</option>
+                            <option value="Pathanamthitta">Pathanamthitta</option>
+                            <option value="Alappuzha">Alappuzha</option>
+                            <option value="Kottayam">Kottayam</option>
+                            <option value="Idukki">Idukki</option>
+                            <option value="Ernakulam">Ernakulam</option>
+                            <option value="Thrissur">Thrissur</option>
+                            <option value="Palakkad">Palakkad</option>
+                            <option value="Malappuram">Malappuram</option>
+                            <option value="Kozhikode">Kozhikode</option>
+                            <option value="Wayanad">Wayanad</option>
+                            <option value="Kannur">Kannur</option>
+                            <option value="Kasaragod">Kasaragod</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="small text-muted">Select College</label>
+                        <select id="collegeSelect" class="form-select" disabled>
+                            <option value="">-- Select District First --</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="instSearchBtn" class="btn btn-secondary w-100 mt-3 fw-bold">SHOW COLLEGE BUSES</button>
+            </div>
+
         </div>
 
         <div id="results" class="mt-4">
-            <!-- Bus List Results Go Here -->
             <div class="text-center text-muted mt-5">
                 <i class="fas fa-search fa-2x mb-2"></i>
-                <p>Enter locations to find buses.</p>
+                <p>Enter details to find buses.</p>
             </div>
         </div>
     </div>
@@ -307,15 +379,12 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <!-- Basic Info -->
                     <div class="col-md-6">
                         <h5 class="text-decoration-underline">Trip Details</h5>
                         <p class="mb-1"><strong>Start:</strong> <span id="detail-start"></span></p>
                         <p class="mb-1"><strong>End:</strong> <span id="detail-end"></span></p>
                         <p class="mb-1"><strong>Total Stops:</strong> <span id="detail-stops-count"></span></p>
                     </div>
-                    
-                    <!-- Buttons -->
                     <div class="col-md-6 text-md-end mt-3 mt-md-0">
                         <button class="btn btn-success btn-lg mb-2 w-100 w-md-auto" id="btn-live-track">
                             <i class="fas fa-map-marker-alt"></i> Live Track
@@ -329,31 +398,71 @@
 
                 <hr>
                 
-                <!-- Route Timeline -->
                 <h5>Route Schedule</h5>
-                <div id="detail-route-list" class="timeline mt-3">
-                    <!-- Populated by JS -->
-                </div>
+                <div id="detail-route-list" class="timeline mt-3"></div>
 
-                <!-- MAP CONTAINER (Initially Hidden) -->
+                <!-- MAP & TRAIN UI CONTAINER -->
                 <div id="map-container">
-                    <div class="d-flex justify-content-between p-2 bg-white border-bottom">
-                        <h6 class="text-success fw-bold m-0" id="map-title">Live Tracking</h6>
+                    <div class="d-flex justify-content-between p-2 bg-white border-bottom align-items-center">
+                        <div>
+                            <h6 class="text-success fw-bold m-0" id="map-title">Live Tracking</h6>
+                            <small id="map-subtitle" class="text-muted">Updating location...</small>
+                        </div>
                         <button id="closeMapBtn" class="btn btn-sm btn-danger py-0">Close</button>
                     </div>
+                    
                     <div id="map"></div>
-                    <p class="text-center small text-muted mt-1 m-0 bg-white">Map updates automatically.</p>
+                    
+                    <!-- New Train Style Status Panel -->
+                    <div class="train-status-panel">
+                        <ul class="station-list" id="train-status-list">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-</div> <!-- End Container -->
+</div>
 
-<footer class="text-center mt-5 mb-4 text-muted small">
-    <hr>
-    <p>© 2024 TrioTrack</p>
-</footer>
+<!-- DATA SCRIPT FOR COLLEGES (ALL KERALA GPTCs) -->
+<script>
+    const keralaPolytechnics = {
+        "Thiruvananthapuram": ["Central Polytechnic College, Vattiyoorkavu", "Govt. Polytechnic College, Neyyattinkara", "Govt. Polytechnic College, Attingal", "Govt. Polytechnic College, Nedumangad", "Women's Polytechnic College, Kaimanam"],
+        "Kollam": ["Govt. Polytechnic College, Perinad", "Govt. Polytechnic College, Punalur", "Govt. Polytechnic College, Ezhukone", "Model Polytechnic College, Karunagappally"],
+        "Pathanamthitta": ["Govt. Polytechnic College, Adoor", "Govt. Polytechnic College, Vennikulam", "Govt. Polytechnic College, Vechoochira"],
+        "Alappuzha": ["Govt. Polytechnic College, Cherthala", "Carmel Polytechnic College, Alappuzha (Aided)", "Govt. Polytechnic College, Punnapra", "Govt. Polytechnic College, Mavelikkara"],
+        "Kottayam": ["Govt. Polytechnic College, Kottayam", "Govt. Polytechnic College, Pala", "Govt. Polytechnic College, Kaduthuruthy", "NSS Polytechnic College, Pandalam (Aided)"],
+        "Idukki": ["Govt. Polytechnic College, Muttom", "Govt. Polytechnic College, Kumily", "Govt. Polytechnic College, Nedumkandam", "Govt. Polytechnic College, Purapuzha"],
+        "Ernakulam": ["Govt. Polytechnic College, Kalamassery", "Govt. Polytechnic College, Kothamangalam", "Govt. Polytechnic College, Perumbavoor", "Women's Polytechnic College, Ernakulam"],
+        "Thrissur": ["Govt. Polytechnic College, Thrissur", "Maharaja's Technological Institute, Thrissur", "Govt. Polytechnic College, Kunnamkulam", "Govt. Polytechnic College, Chelakkara", "Govt. Polytechnic College, Koratty", "Women's Polytechnic College, Thrissur"],
+        "Palakkad": ["Govt. Polytechnic College, Palakkad", "IPT & GPTC, Shoranur", "Govt. Polytechnic College, Kodumbu"],
+        "Malappuram": ["Govt. Polytechnic College, Perinthalmanna", "Govt. Polytechnic College, Tirur", "Govt. Polytechnic College, Manjeri", "Govt. Polytechnic College, Kottakkal", "Govt. Polytechnic College, Chelari"],
+        "Kozhikode": ["Govt. Polytechnic College, Kozhikode", "Kerala Govt. Polytechnic College, Westhill", "Women's Polytechnic College, Kozhikode"],
+        "Wayanad": ["Govt. Polytechnic College, Meenangadi", "Govt. Polytechnic College, Meppadi"],
+        "Kannur": ["Govt. Polytechnic College, Kannur", "Govt. Polytechnic College, Payyannur", "Govt. Polytechnic College, Mattannur", "Residential Polytechnic College, Payyannur"],
+        "Kasaragod": ["Govt. Polytechnic College, Kasaragod", "Govt. Polytechnic College, Kanhangad", "Govt. Polytechnic College, Trikaripur"]
+    };
+
+    // REALISTIC MAJOR STOPS PER DISTRICT FOR ROUTE GENERATION
+    const districtStops = {
+        "Thiruvananthapuram": ["Thampanoor Bus Stand", "Statue Jn", "Pattom"],
+        "Kollam": ["Kollam KSRTC Stand", "Chinnakada", "High School Jn"],
+        "Pathanamthitta": ["Pathanamthitta Pvt Stand", "General Hospital Jn", "Kumbazha"],
+        "Alappuzha": ["Alappuzha KSRTC Stand", "General Hospital Jn", "Kaithavana"],
+        "Kottayam": ["Nagampadam Stand", "Kottayam KSRTC", "Baker Jn"],
+        "Idukki": ["Painavu Stand", "Cheruthoni", "Thodupuzha Pvt Stand"],
+        "Ernakulam": ["Vyttila Mobility Hub", "Palarivattom", "Edappally"],
+        "Thrissur": ["Sakthan Thampuran Stand", "Swaraj Round", "Vadakke Stand"],
+        "Palakkad": ["Stadium Bus Stand", "Victoria College Jn", "Mercy College Jn"],
+        "Malappuram": ["Malappuram KSRTC", "Civil Station", "Kottapadi"],
+        "Kozhikode": ["Moffusil Stand", "Mananchira Square", "Palayam Stand"],
+        "Wayanad": ["Kalpetta New Stand", "Kainatty", "Chundale"],
+        "Kannur": ["Kannur Old Bus Stand", "Caltex Jn", "Thavakkara"],
+        "Kasaragod": ["Kasaragod New Bus Stand", "Press Club Jn", "Vidyanagar"]
+    };
+</script>
 
 <!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -363,7 +472,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // --- 1. FIREBASE CONFIG ---
     const firebaseConfig = {
       apiKey: "AIzaSyDcWwo0m2eS1ndyC06U1G_JF1J7Y1WNlfQ",
       authDomain: "triotrack-66dd6.firebaseapp.com",
@@ -377,118 +485,169 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- VARIABLES ---
     let map = null;
     let marker = null;
     let unsubscribe = null;
-    let allRoutesData = []; // Store data locally
-    let currentBusForDetails = null; // Store currently viewed bus
+    let allRoutesData = []; 
+    let currentBusForDetails = null;
 
-    // --- 2. UI UTILITIES ---
-
-    // Time & Date
+    // --- UI UTILS ---
     function updateTime() {
         const now = new Date();
         const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const dateString = now.toLocaleDateString(undefined, dateOptions);
-
-        // Desktop
-        document.getElementById('date-display').innerText = dateString;
-        document.getElementById('time-display').innerText = timeString;
-        
-        // Mobile
-        const dateMobile = document.getElementById('date-display-mobile');
-        const timeMobile = document.getElementById('time-display-mobile');
-        if(dateMobile) dateMobile.innerText = dateString;
-        if(timeMobile) timeMobile.innerText = timeString;
+        document.getElementById('date-display').innerText = now.toLocaleDateString(undefined, dateOptions);
+        document.getElementById('time-display').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
     setInterval(updateTime, 1000);
     updateTime();
 
-    // Theme Toggle
     window.setTheme = (mode) => {
-        if (mode === 'dark') {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
+        document.body.classList.toggle('dark-mode', mode === 'dark');
     };
 
-    // Page Navigation
     window.navigateTo = (pageId) => {
         document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
         window.scrollTo(0, 0);
     };
 
-    // Section Selection -> Route Page
+    // --- SECTION LOGIC ---
     window.selectSection = (category) => {
         const filterEl = document.getElementById('categoryFilter');
         const badgeEl = document.getElementById('selected-category-badge');
+        const stdUI = document.getElementById('standard-search-ui');
+        const instUI = document.getElementById('institution-search-ui');
         
-        // Map UI names to Data names (MUST match Admin Portal values)
-        if (category === 'Public Bus (KSRTC)') {
-             // Admin saves as "Public Bus (KSRTC)"
-             filterEl.value = category; 
-             badgeEl.innerText = "Transport (KSRTC)";
-        } else if (category === 'Interstate') {
-             // Admin saves as "Interstate"
-             filterEl.value = 'Interstate';
-             badgeEl.innerText = "Interstate";
-        } else if (category === 'Institution') {
-             // Admin saves as "Institution"
-             filterEl.value = 'Institution';
-             badgeEl.innerText = "Institution";
-        } else {
-            // "Private Bus"
-            filterEl.value = category;
-            badgeEl.innerText = category;
-        }
+        // Reset UIs
+        stdUI.classList.remove('d-none');
+        instUI.classList.add('d-none');
 
+        if(category === 'Institution') {
+            filterEl.value = 'Institution';
+            badgeEl.innerText = "Institution (Govt Polytechnic)";
+            stdUI.classList.add('d-none');
+            instUI.classList.remove('d-none');
+        } else {
+            // Map names
+            if (category === 'Public Bus (KSRTC)') {
+                 filterEl.value = category; 
+                 badgeEl.innerText = "Transport (KSRTC)";
+            } else {
+                filterEl.value = category;
+                badgeEl.innerText = category;
+            }
+        }
         navigateTo('page-route');
     };
 
-    // Swap Locations
     window.swapLocations = () => {
         const src = document.getElementById('source');
         const dst = document.getElementById('destination');
-        const temp = src.value;
-        src.value = dst.value;
-        dst.value = temp;
+        [src.value, dst.value] = [dst.value, src.value];
     };
 
-    // --- 3. DATA LOADING ---
+    // --- DATA LOADING ---
     async function loadStops() {
         try {
             const snapshot = await getDocs(collection(db, "routes"));
             const stopsSet = new Set();
-            
             snapshot.forEach(doc => {
                 const data = doc.data();
                 allRoutesData.push(data);
-                
-                if (data.route && Array.isArray(data.route)) {
-                    data.route.forEach(stop => {
-                        if (stop.name) stopsSet.add(stop.name.trim());
-                    });
-                }
+                if (data.route) data.route.forEach(stop => { if(stop.name) stopsSet.add(stop.name.trim()); });
             });
-
             const dataList = document.getElementById('stopOptions');
-            stopsSet.forEach(stopName => {
-                const option = document.createElement('option');
-                option.value = stopName;
-                dataList.appendChild(option);
+            stopsSet.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                dataList.appendChild(opt);
             });
-            console.log("Stops loaded:", stopsSet.size);
-        } catch (error) {
-            console.error("Error loading stops:", error);
-        }
+        } catch (e) { console.error(e); }
     }
     loadStops();
 
-    // --- 4. SEARCH LOGIC ---
+    // --- INSTITUTION LOGIC (District/College) ---
+    const districtSelect = document.getElementById('districtSelect');
+    const collegeSelect = document.getElementById('collegeSelect');
+
+    districtSelect.addEventListener('change', () => {
+        const district = districtSelect.value;
+        collegeSelect.innerHTML = '<option value="">-- Select College --</option>';
+        collegeSelect.disabled = true;
+
+        if (district && keralaPolytechnics[district]) {
+            keralaPolytechnics[district].forEach(college => {
+                const opt = document.createElement('option');
+                opt.value = college;
+                opt.innerText = college;
+                collegeSelect.appendChild(opt);
+            });
+            collegeSelect.disabled = false;
+        }
+    });
+
+    document.getElementById('instSearchBtn').addEventListener('click', () => {
+        const college = collegeSelect.value;
+        const district = districtSelect.value;
+        if(!college) return alert("Please select a college");
+
+        // GENERATE REALISTIC ROUTE BASED ON DISTRICT STOPS
+        const majorStops = districtStops[district] || ["City Center", "Town Hall", "Bypass"];
+        
+        // 2. MOCK DATA WITH MORNING/EVENING SPLIT
+        const mockBus = {
+            busName: "College Bus 01",
+            busNumber: "KL-15-INST-01",
+            category: "Institution",
+            // Morning Trip
+            morningRoute: [
+                { name: majorStops[0], time: "08:00 AM" }, // Start at Major Stand
+                { name: majorStops[1], time: "08:15 AM" },
+                { name: majorStops[2], time: "08:30 AM" },
+                { name: college, time: "08:50 AM (Arr)" }
+            ],
+            // Evening Trip (Reverse)
+            eveningRoute: [
+                { name: college, time: "04:15 PM (Dep)" },
+                { name: majorStops[2], time: "04:35 PM" },
+                { name: majorStops[1], time: "04:50 PM" },
+                { name: majorStops[0], time: "05:05 PM" }
+            ],
+            route: [] 
+        };
+
+        // Render Card
+        const html = `
+            <div class="card mb-3 bus-result-card shadow-sm" onclick='window.handleInstClick(${JSON.stringify(mockBus)})'>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h5 class="fw-bold text-primary">${college} Bus</h5>
+                        <span class="badge bg-secondary">Institution</span>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col">
+                            <small class="text-muted">Morning Arr</small><br><strong>08:50 AM</strong>
+                        </div>
+                        <div class="col">
+                            <small class="text-muted">Evening Dep</small><br><strong>04:15 PM</strong>
+                        </div>
+                        <div class="col text-end align-self-center">
+                            <small class="text-success fw-bold">View Stops</small>
+                        </div>
+                    </div>
+                    <div class="mt-2 p-2 bg-light small rounded border">
+                        <strong>Route:</strong> ${majorStops[0]} <-> ${college}
+                    </div>
+                </div>
+            </div>`;
+        document.getElementById('results').innerHTML = html;
+        
+        window.handleInstClick = (busObj) => {
+            loadBusDetailsPage(busObj);
+        };
+    });
+
+    // --- STANDARD SEARCH LOGIC ---
     document.getElementById('searchBtn').addEventListener('click', () => {
         const src = document.getElementById('source').value.toLowerCase().trim();
         const dst = document.getElementById('destination').value.toLowerCase().trim();
@@ -496,7 +655,6 @@
         const resDiv = document.getElementById('results');
         
         if (!src || !dst) return alert("Please enter both Source and Destination");
-        
         resDiv.innerHTML = "<div class='text-center mt-3'><div class='spinner-border text-primary'></div><p>Searching...</p></div>";
 
         let html = "";
@@ -504,90 +662,104 @@
         let resultsArray = [];
 
         allRoutesData.forEach(d => {
-            // Filter Check
             if (categoryFilter !== "All" && d.category !== categoryFilter) return;
-
-            // Route Match Check
+            
             const keywords = d.searchKeywords || [];
             const sIdx = keywords.indexOf(src);
             const dIdx = keywords.indexOf(dst);
 
             if (sIdx !== -1 && dIdx !== -1 && sIdx < dIdx) {
                 count++;
-                
                 const t1Obj = d.route.find(r => r.name.toLowerCase() === src);
                 const t2Obj = d.route.find(r => r.name.toLowerCase() === dst);
                 const t1 = t1Obj ? t1Obj.time : "N/A";
                 const t2 = t2Obj ? t2Obj.time : "N/A";
 
-                resultsArray.push({ busData: d, t1, t2, srcName: t1Obj.name, dstName: t2Obj.name });
+                resultsArray.push({ busData: d, t1, t2 });
 
                 html += `
                     <div class="card mb-3 bus-result-card shadow-sm" onclick="window.handleBusClick(${resultsArray.length - 1})">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="fw-bold mb-0">${d.busName}</h5>
-                                    <small class="text-muted">${d.busNumber}</small>
-                                </div>
+                                <div><h5 class="fw-bold mb-0">${d.busName}</h5><small class="text-muted">${d.busNumber}</small></div>
                                 <i class="fas fa-chevron-right text-muted"></i>
                             </div>
                             <div class="row mt-2">
-                                <div class="col-6">
-                                    <small class="text-muted">Departs</small><br>
-                                    <strong>${t1}</strong>
-                                </div>
-                                <div class="col-6 text-end">
-                                    <small class="text-muted">Arrives</small><br>
-                                    <strong>${t2}</strong>
-                                </div>
+                                <div class="col-6"><small class="text-muted">Departs</small><br><strong>${t1}</strong></div>
+                                <div class="col-6 text-end"><small class="text-muted">Arrives</small><br><strong>${t2}</strong></div>
                             </div>
                         </div>
                     </div>`;
             }
         });
 
-        resDiv.innerHTML = count > 0 ? html : "<div class='alert alert-warning text-center'>No buses found for this route.</div>";
-        
-        window.handleBusClick = (index) => {
-            const result = resultsArray[index];
-            loadBusDetailsPage(result.busData);
-        };
+        resDiv.innerHTML = count > 0 ? html : "<div class='alert alert-warning text-center'>No buses found.</div>";
+        window.handleBusClick = (index) => loadBusDetailsPage(resultsArray[index].busData);
     });
 
-    // --- 5. DETAILS PAGE LOGIC ---
+    // --- BUS DETAILS & TRACKING ---
     function loadBusDetailsPage(busData) {
         currentBusForDetails = busData;
-        
         document.getElementById('detail-bus-name').innerText = busData.busName;
         document.getElementById('detail-bus-number').innerText = busData.busNumber;
         
-        const route = busData.route || [];
-        const start = route.length > 0 ? route[0].name : "N/A";
-        const end = route.length > 0 ? route[route.length-1].name : "N/A";
+        // Handle Info Display based on Category
+        let start = "N/A", end = "N/A", count = 0;
+        
+        if (busData.category === 'Institution') {
+            // Updated to show Major Stand as Start for Institution
+            start = busData.morningRoute[0].name;
+            end = "College Campus";
+            count = (busData.morningRoute?.length || 0) + (busData.eveningRoute?.length || 0);
+        } else {
+            const route = busData.route || [];
+            start = route.length > 0 ? route[0].name : "N/A";
+            end = route.length > 0 ? route[route.length-1].name : "N/A";
+            count = route.length;
+        }
         
         document.getElementById('detail-start').innerText = start;
         document.getElementById('detail-end').innerText = end;
-        document.getElementById('detail-stops-count').innerText = route.length;
+        document.getElementById('detail-stops-count').innerText = count;
 
+        // POPULATE TIMELINE
         const timelineDiv = document.getElementById('detail-route-list');
-        let timelineHtml = "";
-        route.forEach(stop => {
-            timelineHtml += `
-                <div class="timeline-item">
-                    <strong>${stop.name}</strong>
-                    <span class="float-end text-primary">${stop.time}</span>
-                </div>`;
-        });
-        timelineDiv.innerHTML = timelineHtml;
+        let tHtml = "";
 
+        if (busData.category === 'Institution' && busData.morningRoute) {
+            // 2. MORNING & EVENING SPLIT DISPLAY
+            tHtml += `<h6 class="text-primary border-bottom pb-2 mb-3"><i class="fas fa-sun me-2"></i>Morning Trip (Arrival)</h6>`;
+            busData.morningRoute.forEach(stop => {
+                tHtml += `<div class="timeline-item"><strong>${stop.name}</strong><span class="float-end text-primary">${stop.time}</span></div>`;
+            });
+            
+            tHtml += `<h6 class="text-primary border-bottom pb-2 mb-3 mt-4"><i class="fas fa-moon me-2"></i>Evening Trip (Departure)</h6>`;
+            busData.eveningRoute.forEach(stop => {
+                tHtml += `<div class="timeline-item"><strong>${stop.name}</strong><span class="float-end text-primary">${stop.time}</span></div>`;
+            });
+        } else {
+            // Standard Route
+            (busData.route || []).forEach(stop => {
+                tHtml += `<div class="timeline-item"><strong>${stop.name}</strong><span class="float-end text-primary">${stop.time}</span></div>`;
+            });
+        }
+        timelineDiv.innerHTML = tHtml;
+
+        // Reset Tracking UI
         document.getElementById('map-container').style.display = 'none';
         if(unsubscribe) unsubscribe();
 
         const trackBtn = document.getElementById('btn-live-track');
         const newTrackBtn = trackBtn.cloneNode(true);
         trackBtn.parentNode.replaceChild(newTrackBtn, trackBtn);
-        newTrackBtn.addEventListener('click', () => track(busData.busNumber));
+
+        // CONDITIONAL LOGIC: Hide Live Track for Institution
+        if (busData.category === 'Institution') {
+            newTrackBtn.style.display = 'none'; // Hide button
+        } else {
+            newTrackBtn.style.display = 'inline-block'; // Show button
+            newTrackBtn.addEventListener('click', () => track(busData.busNumber, busData.route));
+        }
 
         navigateTo('page-details');
     }
@@ -596,50 +768,58 @@
     window.shareBusDetails = async () => {
         if(!currentBusForDetails) return;
         const text = `Track bus ${currentBusForDetails.busName} (${currentBusForDetails.busNumber}) on TrioTrack!`;
-        
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: 'TrioTrack Bus Details',
-                    text: text,
-                    url: window.location.href
-                });
-            } catch (err) {
-                console.log('Share canceled');
-            }
-        } else {
-            alert("Copied to clipboard: " + text);
-        }
+        try {
+            if (navigator.share) await navigator.share({ title: 'TrioTrack', text: text, url: window.location.href });
+            else alert("Copied: " + text);
+        } catch (e) {}
     };
 
-    // --- 6. TRACKING LOGIC ---
-    function track(busNum) {
+    // --- TRACKING WITH TRAIN STYLE MAP ---
+    function track(busNum, routeData) {
         const mapDiv = document.getElementById('map-container');
         mapDiv.style.display = 'block';
         document.getElementById('map-title').innerText = `Tracking: ${busNum}`;
-        
-        setTimeout(() => mapDiv.scrollIntoView({ behavior: 'smooth' }), 100);
+        mapDiv.scrollIntoView({ behavior: 'smooth' });
 
+        // Initialize Map
         if (!map) {
             map = L.map('map').setView([10.0, 76.0], 10);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
         }
-        
         setTimeout(() => map.invalidateSize(), 300);
 
+        // Build Train Style Station List
+        const trainList = document.getElementById('train-status-list');
+        let listHtml = "";
+        if(routeData) {
+            routeData.forEach((stop, index) => {
+                // First item active by default visual
+                const activeClass = index === 0 ? "active" : "";
+                listHtml += `
+                    <li class="station-item ${activeClass}" id="station-${index}">
+                        <div class="station-dot"></div>
+                        <div class="station-name">${stop.name}</div>
+                        <div class="station-time">${stop.time}</div>
+                    </li>
+                `;
+            });
+        }
+        trainList.innerHTML = listHtml;
+
+        // Live Tracking
         if (unsubscribe) unsubscribe();
         if (marker) map.removeLayer(marker);
 
         unsubscribe = onSnapshot(doc(db, "locations", busNum), (docSnapshot) => {
             if (docSnapshot.exists()) {
-                const { lat, lng } = docSnapshot.data();
-                if (marker) {
-                    marker.setLatLng([lat, lng]);
-                } else {
-                    marker = L.marker([lat, lng]).addTo(map).bindPopup(`<b>${busNum}</b>`).openPopup();
-                }
+                const { lat, lng, lastUpdated } = docSnapshot.data();
+                if (marker) marker.setLatLng([lat, lng]);
+                else marker = L.marker([lat, lng]).addTo(map).bindPopup(`<b>${busNum}</b>`).openPopup();
+                
                 map.setView([lat, lng], 15);
+                document.getElementById('map-subtitle').innerText = "Live: Moving... (Updated just now)";
             } else { 
+                document.getElementById('map-subtitle').innerText = "Offline";
                 alert("GPS Signal Lost: This bus is offline.");
             }
         });
