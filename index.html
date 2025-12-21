@@ -1,0 +1,655 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TrioTrack - Find, Route, Track</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* GLOBAL FONT SETTING */
+        body, h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, select {
+            font-family: 'Poppins', sans-serif !important;
+        }
+
+        /* PAGE TRANSITIONS */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+            padding-bottom: 80px;
+        }
+        .page-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DARK MODE STYLES */
+        body.dark-mode {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+        }
+        .dark-mode .card, .dark-mode .modal-content {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            border-color: #333;
+        }
+        .dark-mode .form-control, .dark-mode .form-select {
+            background-color: #2d2d2d;
+            color: #fff;
+            border-color: #444;
+        }
+        .dark-mode .text-muted {
+            color: #aaa !important;
+        }
+        .dark-mode .list-group-item {
+            background-color: #1e1e1e;
+            color: #fff;
+            border-color: #333;
+        }
+        .dark-mode .navbar {
+            background-color: #000 !important;
+        }
+        .dark-mode .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* ANIMATED TITLE */
+        .brand-animate {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #0d6efd, #198754, #ffc107);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        /* CARDS & LAYOUT */
+        .section-card {
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+            border-top: 4px solid #0d6efd;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .bus-result-card {
+            cursor: pointer;
+            border-left: 5px solid #198754;
+            transition: 0.2s;
+        }
+        .bus-result-card:hover {
+            background-color: rgba(25, 135, 84, 0.1);
+        }
+
+        /* MAP STYLING */
+        #map-container { 
+            display: none; 
+            height: 400px; 
+            margin-top: 20px; 
+            border-radius: 10px; 
+            border: 2px solid #198754; 
+            position: relative; 
+        }
+        #map { height: 100%; width: 100%; border-radius: 8px; }
+
+        /* UTILS */
+        .time-display {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .timeline {
+            border-left: 2px solid #0d6efd;
+            padding-left: 20px;
+            margin-left: 10px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            background: #0d6efd;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- NAVBAR (Fixed Top) -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow fixed-top">
+    <div class="container-fluid">
+        <!-- Date & Time (Left) -->
+        <div class="text-white d-none d-md-block">
+            <small id="date-display"></small> | <small id="time-display"></small>
+        </div>
+        
+        <span class="navbar-brand fw-bold ms-md-3 mx-auto">🚍 TrioTrack</span>
+
+        <!-- Right Side Controls -->
+        <div class="d-flex align-items-center gap-2">
+            <!-- Theme Toggle -->
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-adjust"></i> Theme
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" onclick="setTheme('light')">Light Mode</a></li>
+                    <li><a class="dropdown-item" href="#" onclick="setTheme('dark')">Dark Mode</a></li>
+                </ul>
+            </div>
+            <!-- Admin Portal Link -->
+            <a href="admin.html" class="btn btn-warning btn-sm fw-bold text-dark text-decoration-none">
+                <i class="fas fa-user-shield"></i> Admin
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div style="margin-top: 80px;"></div> <!-- Spacer for fixed navbar -->
+
+<div class="container">
+
+    <!-- PAGE 1: WELCOME PAGE -->
+    <div id="page-welcome" class="page-section active text-center mt-5">
+        <div class="p-4">
+            <h1 class="brand-animate mb-0">TRIOTRACK</h1>
+            <p class="text-muted fw-bold letter-spacing-2" style="letter-spacing: 3px;">FIND • ROUTE • TRACK</p>
+            
+            <div class="mt-4 mb-4">
+                <img src="https://cdn-icons-png.flaticon.com/512/3448/3448339.png" alt="Bus Icon" width="150" class="mb-3">
+                <div class="card p-3 shadow-sm mx-auto" style="max-width: 600px;">
+                    <h5>About TrioTrack</h5>
+                    <p class="small text-muted mb-0">
+                        TrioTrack is your ultimate companion for modern public transportation. 
+                        We connect you to Private, Interstate, Transport, and Institution buses with real-time tracking, 
+                        accurate route planning, and seamless user experience. Reliable, Fast, and Easy.
+                    </p>
+                </div>
+            </div>
+
+            <button onclick="navigateTo('page-sections')" class="btn btn-primary btn-lg px-5 shadow rounded-pill">
+                Get Started <i class="fas fa-arrow-right ms-2"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Time Display -->
+        <div class="mt-3 d-md-none text-muted">
+            <small id="date-display-mobile"></small> <br> <span id="time-display-mobile"></span>
+        </div>
+    </div>
+
+    <!-- PAGE 2: SECTIONS PAGE -->
+    <div id="page-sections" class="page-section">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Select Service Type</h2>
+            <p class="text-muted">Choose the type of transportation you need</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Private -->
+            <div class="col-md-6">
+                <div class="card section-card p-4 text-center" onclick="selectSection('Private Bus')">
+                    <i class="fas fa-bus-alt fa-3x text-primary mb-3"></i>
+                    <h4>PRIVATE</h4>
+                    <p class="text-muted small">Connections between major cities and rural areas of districts.</p>
+                </div>
+            </div>
+            <!-- Transport -->
+            <div class="col-md-6">
+                <div class="card section-card p-4 text-center" onclick="selectSection('Public Bus (KSRTC)')">
+                    <i class="fas fa-landmark fa-3x text-success mb-3"></i>
+                    <h4>TRANSPORT</h4>
+                    <p class="text-muted small">Connections between district to district (KSRTC/Public).</p>
+                </div>
+            </div>
+            <!-- Interstate -->
+            <div class="col-md-6">
+                <div class="card section-card p-4 text-center" onclick="selectSection('Interstate')">
+                    <i class="fas fa-map-marked-alt fa-3x text-danger mb-3"></i>
+                    <h4>INTERSTATE</h4>
+                    <p class="text-muted small">Long-distance connections between state to state.</p>
+                </div>
+            </div>
+            <!-- Institution -->
+            <div class="col-md-6">
+                <div class="card section-card p-4 text-center" style="border-top-color: #6c757d;" onclick="selectSection('Institution')">
+                    <i class="fas fa-university fa-3x text-secondary mb-3"></i>
+                    <h4>INSTITUTION</h4>
+                    <p class="text-muted small">Connection between campuses to main city/district.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+             <button onclick="navigateTo('page-welcome')" class="btn btn-outline-secondary btn-sm">Back</button>
+        </div>
+    </div>
+
+    <!-- PAGE 3: ROUTE FINDER PAGE -->
+    <div id="page-route" class="page-section">
+        <div class="card p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Search Route <span id="selected-category-badge" class="badge bg-info ms-2">All</span></h5>
+                <button onclick="navigateTo('page-sections')" class="btn btn-sm btn-outline-secondary">Back</button>
+            </div>
+            
+            <!-- Hidden Input for Logic -->
+            <input type="hidden" id="categoryFilter" value="All">
+
+            <div class="row g-2 align-items-center">
+                <div class="col-md-5">
+                    <label class="small text-muted">From</label>
+                    <input type="text" id="source" class="form-control" placeholder="Source (e.g. Stop A)" list="stopOptions">
+                </div>
+                
+                <div class="col-md-2 text-center pt-3">
+                    <button class="btn btn-outline-primary rounded-circle" onclick="swapLocations()" title="Swap">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-5">
+                    <label class="small text-muted">To</label>
+                    <input type="text" id="destination" class="form-control" placeholder="Destination (e.g. Stop B)" list="stopOptions">
+                </div>
+            </div>
+            
+            <button id="searchBtn" class="btn btn-dark w-100 mt-3 fw-bold">FIND BUS</button>
+            
+            <datalist id="stopOptions">
+                <!-- Populated by JS -->
+            </datalist>
+        </div>
+
+        <div id="results" class="mt-4">
+            <!-- Bus List Results Go Here -->
+            <div class="text-center text-muted mt-5">
+                <i class="fas fa-search fa-2x mb-2"></i>
+                <p>Enter locations to find buses.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: BUS DETAILS PAGE -->
+    <div id="page-details" class="page-section">
+        <button onclick="navigateTo('page-route')" class="btn btn-outline-secondary btn-sm mb-3">
+            <i class="fas fa-arrow-left"></i> Back to Results
+        </button>
+
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3 class="fw-bold mb-0" id="detail-bus-name">Bus Name</h3>
+                <small id="detail-bus-number">KA-00-0000</small>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Basic Info -->
+                    <div class="col-md-6">
+                        <h5 class="text-decoration-underline">Trip Details</h5>
+                        <p class="mb-1"><strong>Start:</strong> <span id="detail-start"></span></p>
+                        <p class="mb-1"><strong>End:</strong> <span id="detail-end"></span></p>
+                        <p class="mb-1"><strong>Total Stops:</strong> <span id="detail-stops-count"></span></p>
+                    </div>
+                    
+                    <!-- Buttons -->
+                    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                        <button class="btn btn-success btn-lg mb-2 w-100 w-md-auto" id="btn-live-track">
+                            <i class="fas fa-map-marker-alt"></i> Live Track
+                        </button>
+                        <br>
+                        <button class="btn btn-info text-white mb-2 w-100 w-md-auto" onclick="shareBusDetails()">
+                            <i class="fas fa-share-alt"></i> Share
+                        </button>
+                    </div>
+                </div>
+
+                <hr>
+                
+                <!-- Route Timeline -->
+                <h5>Route Schedule</h5>
+                <div id="detail-route-list" class="timeline mt-3">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- MAP CONTAINER (Initially Hidden) -->
+                <div id="map-container">
+                    <div class="d-flex justify-content-between p-2 bg-white border-bottom">
+                        <h6 class="text-success fw-bold m-0" id="map-title">Live Tracking</h6>
+                        <button id="closeMapBtn" class="btn btn-sm btn-danger py-0">Close</button>
+                    </div>
+                    <div id="map"></div>
+                    <p class="text-center small text-muted mt-1 m-0 bg-white">Map updates automatically.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div> <!-- End Container -->
+
+<footer class="text-center mt-5 mb-4 text-muted small">
+    <hr>
+    <p>© 2024 TrioTrack</p>
+</footer>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // --- 1. FIREBASE CONFIG ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDcWwo0m2eS1ndyC06U1G_JF1J7Y1WNlfQ",
+      authDomain: "triotrack-66dd6.firebaseapp.com",
+      projectId: "triotrack-66dd6",
+      storageBucket: "triotrack-66dd6.firebasestorage.app",
+      messagingSenderId: "994389952848",
+      appId: "1:994389952848:web:659fbc330f2d660dfb0455",
+      measurementId: "G-B7TMFX0F21"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // --- VARIABLES ---
+    let map = null;
+    let marker = null;
+    let unsubscribe = null;
+    let allRoutesData = []; // Store data locally
+    let currentBusForDetails = null; // Store currently viewed bus
+
+    // --- 2. UI UTILITIES ---
+
+    // Time & Date
+    function updateTime() {
+        const now = new Date();
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const dateString = now.toLocaleDateString(undefined, dateOptions);
+
+        // Desktop
+        document.getElementById('date-display').innerText = dateString;
+        document.getElementById('time-display').innerText = timeString;
+        
+        // Mobile
+        const dateMobile = document.getElementById('date-display-mobile');
+        const timeMobile = document.getElementById('time-display-mobile');
+        if(dateMobile) dateMobile.innerText = dateString;
+        if(timeMobile) timeMobile.innerText = timeString;
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Theme Toggle
+    window.setTheme = (mode) => {
+        if (mode === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+        }
+    };
+
+    // Page Navigation
+    window.navigateTo = (pageId) => {
+        document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        window.scrollTo(0, 0);
+    };
+
+    // Section Selection -> Route Page
+    window.selectSection = (category) => {
+        const filterEl = document.getElementById('categoryFilter');
+        const badgeEl = document.getElementById('selected-category-badge');
+        
+        // Map UI names to Data names (MUST match Admin Portal values)
+        if (category === 'Public Bus (KSRTC)') {
+             // Admin saves as "Public Bus (KSRTC)"
+             filterEl.value = category; 
+             badgeEl.innerText = "Transport (KSRTC)";
+        } else if (category === 'Interstate') {
+             // Admin saves as "Interstate"
+             filterEl.value = 'Interstate';
+             badgeEl.innerText = "Interstate";
+        } else if (category === 'Institution') {
+             // Admin saves as "Institution"
+             filterEl.value = 'Institution';
+             badgeEl.innerText = "Institution";
+        } else {
+            // "Private Bus"
+            filterEl.value = category;
+            badgeEl.innerText = category;
+        }
+
+        navigateTo('page-route');
+    };
+
+    // Swap Locations
+    window.swapLocations = () => {
+        const src = document.getElementById('source');
+        const dst = document.getElementById('destination');
+        const temp = src.value;
+        src.value = dst.value;
+        dst.value = temp;
+    };
+
+    // --- 3. DATA LOADING ---
+    async function loadStops() {
+        try {
+            const snapshot = await getDocs(collection(db, "routes"));
+            const stopsSet = new Set();
+            
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                allRoutesData.push(data);
+                
+                if (data.route && Array.isArray(data.route)) {
+                    data.route.forEach(stop => {
+                        if (stop.name) stopsSet.add(stop.name.trim());
+                    });
+                }
+            });
+
+            const dataList = document.getElementById('stopOptions');
+            stopsSet.forEach(stopName => {
+                const option = document.createElement('option');
+                option.value = stopName;
+                dataList.appendChild(option);
+            });
+            console.log("Stops loaded:", stopsSet.size);
+        } catch (error) {
+            console.error("Error loading stops:", error);
+        }
+    }
+    loadStops();
+
+    // --- 4. SEARCH LOGIC ---
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        const src = document.getElementById('source').value.toLowerCase().trim();
+        const dst = document.getElementById('destination').value.toLowerCase().trim();
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const resDiv = document.getElementById('results');
+        
+        if (!src || !dst) return alert("Please enter both Source and Destination");
+        
+        resDiv.innerHTML = "<div class='text-center mt-3'><div class='spinner-border text-primary'></div><p>Searching...</p></div>";
+
+        let html = "";
+        let count = 0;
+        let resultsArray = [];
+
+        allRoutesData.forEach(d => {
+            // Filter Check
+            if (categoryFilter !== "All" && d.category !== categoryFilter) return;
+
+            // Route Match Check
+            const keywords = d.searchKeywords || [];
+            const sIdx = keywords.indexOf(src);
+            const dIdx = keywords.indexOf(dst);
+
+            if (sIdx !== -1 && dIdx !== -1 && sIdx < dIdx) {
+                count++;
+                
+                const t1Obj = d.route.find(r => r.name.toLowerCase() === src);
+                const t2Obj = d.route.find(r => r.name.toLowerCase() === dst);
+                const t1 = t1Obj ? t1Obj.time : "N/A";
+                const t2 = t2Obj ? t2Obj.time : "N/A";
+
+                resultsArray.push({ busData: d, t1, t2, srcName: t1Obj.name, dstName: t2Obj.name });
+
+                html += `
+                    <div class="card mb-3 bus-result-card shadow-sm" onclick="window.handleBusClick(${resultsArray.length - 1})">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="fw-bold mb-0">${d.busName}</h5>
+                                    <small class="text-muted">${d.busNumber}</small>
+                                </div>
+                                <i class="fas fa-chevron-right text-muted"></i>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6">
+                                    <small class="text-muted">Departs</small><br>
+                                    <strong>${t1}</strong>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <small class="text-muted">Arrives</small><br>
+                                    <strong>${t2}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+        });
+
+        resDiv.innerHTML = count > 0 ? html : "<div class='alert alert-warning text-center'>No buses found for this route.</div>";
+        
+        window.handleBusClick = (index) => {
+            const result = resultsArray[index];
+            loadBusDetailsPage(result.busData);
+        };
+    });
+
+    // --- 5. DETAILS PAGE LOGIC ---
+    function loadBusDetailsPage(busData) {
+        currentBusForDetails = busData;
+        
+        document.getElementById('detail-bus-name').innerText = busData.busName;
+        document.getElementById('detail-bus-number').innerText = busData.busNumber;
+        
+        const route = busData.route || [];
+        const start = route.length > 0 ? route[0].name : "N/A";
+        const end = route.length > 0 ? route[route.length-1].name : "N/A";
+        
+        document.getElementById('detail-start').innerText = start;
+        document.getElementById('detail-end').innerText = end;
+        document.getElementById('detail-stops-count').innerText = route.length;
+
+        const timelineDiv = document.getElementById('detail-route-list');
+        let timelineHtml = "";
+        route.forEach(stop => {
+            timelineHtml += `
+                <div class="timeline-item">
+                    <strong>${stop.name}</strong>
+                    <span class="float-end text-primary">${stop.time}</span>
+                </div>`;
+        });
+        timelineDiv.innerHTML = timelineHtml;
+
+        document.getElementById('map-container').style.display = 'none';
+        if(unsubscribe) unsubscribe();
+
+        const trackBtn = document.getElementById('btn-live-track');
+        const newTrackBtn = trackBtn.cloneNode(true);
+        trackBtn.parentNode.replaceChild(newTrackBtn, trackBtn);
+        newTrackBtn.addEventListener('click', () => track(busData.busNumber));
+
+        navigateTo('page-details');
+    }
+
+    // Share Logic
+    window.shareBusDetails = async () => {
+        if(!currentBusForDetails) return;
+        const text = `Track bus ${currentBusForDetails.busName} (${currentBusForDetails.busNumber}) on TrioTrack!`;
+        
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'TrioTrack Bus Details',
+                    text: text,
+                    url: window.location.href
+                });
+            } catch (err) {
+                console.log('Share canceled');
+            }
+        } else {
+            alert("Copied to clipboard: " + text);
+        }
+    };
+
+    // --- 6. TRACKING LOGIC ---
+    function track(busNum) {
+        const mapDiv = document.getElementById('map-container');
+        mapDiv.style.display = 'block';
+        document.getElementById('map-title').innerText = `Tracking: ${busNum}`;
+        
+        setTimeout(() => mapDiv.scrollIntoView({ behavior: 'smooth' }), 100);
+
+        if (!map) {
+            map = L.map('map').setView([10.0, 76.0], 10);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
+        }
+        
+        setTimeout(() => map.invalidateSize(), 300);
+
+        if (unsubscribe) unsubscribe();
+        if (marker) map.removeLayer(marker);
+
+        unsubscribe = onSnapshot(doc(db, "locations", busNum), (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const { lat, lng } = docSnapshot.data();
+                if (marker) {
+                    marker.setLatLng([lat, lng]);
+                } else {
+                    marker = L.marker([lat, lng]).addTo(map).bindPopup(`<b>${busNum}</b>`).openPopup();
+                }
+                map.setView([lat, lng], 15);
+            } else { 
+                alert("GPS Signal Lost: This bus is offline.");
+            }
+        });
+    }
+
+    document.getElementById('closeMapBtn').addEventListener('click', () => {
+        document.getElementById('map-container').style.display = 'none';
+        if (unsubscribe) unsubscribe();
+    });
+
+</script>
+</body>
+</html>
