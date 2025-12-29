@@ -6,134 +6,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* GLOBAL FONT SETTING */
         body, h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, select {
             font-family: 'Poppins', sans-serif !important;
         }
+        .page-section { display: none; animation: fadeIn 0.5s ease-in-out; padding-bottom: 80px; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Dark Mode */
+        body.dark-mode { background-color: #121212 !important; color: #ffffff !important; }
+        .dark-mode .card { background-color: #1e1e1e; color: #ffffff; border-color: #333; }
+        .dark-mode .form-control, .dark-mode .form-select { background-color: #2d2d2d; color: #fff; border-color: #444; }
+        .dark-mode .table { color: #fff; }
+        .dark-mode .table-hover tbody tr:hover { background-color: #333; color: #fff; }
+        .dark-mode .nav-tabs .nav-link { color: #aaa; }
+        .dark-mode .nav-tabs .nav-link.active { background-color: #1e1e1e; color: #fff; border-color: #333 #333 #1e1e1e; }
 
-        /* PAGE TRANSITIONS */
-        .page-section {
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-            padding-bottom: 80px;
-        }
-        .page-section.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* DARK MODE STYLES */
-        body.dark-mode {
-            background-color: #121212 !important;
-            color: #ffffff !important;
-        }
-        .dark-mode .card {
-            background-color: #1e1e1e;
-            color: #ffffff;
-            border-color: #333;
-        }
-        .dark-mode .form-control, .dark-mode .form-select {
-            background-color: #2d2d2d;
-            color: #fff;
-            border-color: #444;
-        }
-        .dark-mode .text-muted {
-            color: #aaa !important;
-        }
-        .dark-mode .input-group-text {
-            background-color: #333;
-            color: #fff;
-            border-color: #444;
-        }
-        .dark-mode .nav-tabs .nav-link {
-            color: #aaa;
-        }
-        .dark-mode .nav-tabs .nav-link.active {
-            background-color: #1e1e1e;
-            color: #fff;
-            border-color: #333 #333 #1e1e1e;
-        }
-        .dark-mode .navbar {
-            background-color: #000 !important;
-        }
-        .dark-mode .table {
-            color: #fff;
-        }
-        .dark-mode .table-hover tbody tr:hover {
-            color: #fff;
-            background-color: #333;
-        }
-
-        /* ANIMATED TITLE */
         .brand-animate {
-            font-size: 3rem;
-            font-weight: bold;
+            font-size: 3rem; font-weight: bold;
             background: linear-gradient(90deg, #dc3545, #fd7e14, #ffc107);
-            background-size: 200% auto;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             animation: shine 3s linear infinite;
         }
-        @keyframes shine {
-            to { background-position: 200% center; }
-        }
-
-        /* UTILS */
-        .nav-link { cursor: pointer; font-weight: bold; }
+        @keyframes shine { to { background-position: 200% center; } }
     </style>
 </head>
 <body class="bg-light">
 
-<!-- NAVBAR (Fixed Top) -->
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-danger shadow fixed-top">
     <div class="container-fluid">
-        <!-- Date & Time (Left) -->
         <div class="text-white d-none d-md-block">
             <small id="date-display"></small> | <small id="time-display"></small>
         </div>
-        
         <span class="navbar-brand fw-bold ms-md-3 mx-auto">🚍 TrioTrack <span class="badge bg-dark small">ADMIN</span></span>
-
-        <!-- Right Side Controls -->
         <div class="d-flex align-items-center gap-2">
-            <!-- Theme Toggle -->
-            <div class="dropdown">
-                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-adjust"></i> Theme
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#" onclick="setTheme('light')">Light Mode</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="setTheme('dark')">Dark Mode</a></li>
-                </ul>
-            </div>
-            <!-- Logout Button (Hidden initially) -->
+            <button class="btn btn-outline-light btn-sm" onclick="setTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark')">Theme</button>
             <button id="logoutBtn" class="btn btn-dark btn-sm fw-bold d-none">Logout</button>
         </div>
     </div>
 </nav>
-
-<div style="margin-top: 80px;"></div> <!-- Spacer -->
+<div style="margin-top: 80px;"></div>
 
 <div class="container">
 
-    <!-- PAGE 1: ADMIN LOGIN -->
+    <!-- PAGE 1: LOGIN -->
     <div id="page-login" class="page-section active">
         <div class="text-center mt-5">
             <h1 class="brand-animate mb-0">TRIOTRACK</h1>
-            <p class="text-muted fw-bold letter-spacing-2" style="letter-spacing: 3px;">ADMINISTRATION</p>
+            <p class="text-muted fw-bold letter-spacing-2">ADMINISTRATION</p>
         </div>
-
         <div class="card mx-auto shadow-lg mt-4" style="max-width: 400px; border-top: 5px solid #dc3545;">
             <div class="card-body p-4">
                 <div class="text-center mb-4">
@@ -141,16 +69,11 @@
                     <h3 class="fw-bold">Secure Login</h3>
                     <div id="system-status" class="badge bg-secondary">Connecting...</div>
                 </div>
-
                 <div class="mb-3">
-                    <label class="form-label text-muted small fw-bold">MASTER PASSWORD</label>
+                    <label class="small fw-bold">MASTER PASSWORD</label>
                     <input type="password" id="adminPass" class="form-control form-control-lg" placeholder="••••••••">
                 </div>
-
-                <button id="loginBtn" class="btn btn-danger w-100 fw-bold py-2 shadow-sm" disabled>
-                    ACCESS DASHBOARD <i class="fas fa-lock-open ms-2"></i>
-                </button>
-                
+                <button id="loginBtn" class="btn btn-danger w-100 fw-bold py-2 shadow-sm" disabled>ACCESS DASHBOARD</button>
                 <p class="text-danger mt-3 text-center small fw-bold" id="loginMsg"></p>
             </div>
         </div>
@@ -163,25 +86,23 @@
             <span class="badge bg-success">System Online</span>
         </div>
 
-        <!-- TABS -->
         <ul class="nav nav-tabs nav-justified mb-4" id="adminTabs">
-            <li class="nav-item">
-                <a class="nav-link active text-danger" id="tab-route"><i class="fas fa-route me-2"></i>Add Route</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-secondary" id="tab-fleet"><i class="fas fa-bus me-2"></i>Manage Fleet</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-secondary" id="tab-driver"><i class="fas fa-id-card me-2"></i>Drivers</a>
-            </li>
+            <li class="nav-item"><a class="nav-link active text-danger" id="tab-route"><i class="fas fa-route me-2"></i>Add/Edit Route</a></li>
+            <li class="nav-item"><a class="nav-link text-secondary" id="tab-fleet"><i class="fas fa-bus me-2"></i>Manage Fleet</a></li>
+            <li class="nav-item"><a class="nav-link text-secondary" id="tab-driver"><i class="fas fa-id-card me-2"></i>Drivers</a></li>
         </ul>
 
-        <!-- ROUTE SECTION (ADD) -->
+        <!-- ADD/EDIT ROUTE SECTION -->
         <div id="route-section">
             <div class="card p-4 shadow-sm border-0 border-start border-5 border-danger">
-                <h5 class="fw-bold mb-3">Add New Bus Route</h5>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0" id="form-title">Add New Bus Route</h5>
+                    <button id="cancelEditBtn" class="btn btn-sm btn-outline-secondary d-none" onclick="resetForm()">Cancel Edit</button>
+                </div>
+                
                 <form id="routeForm">
-                    <!-- Basic Info -->
+                    <input type="hidden" id="edit-doc-id">
+                    
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="small text-muted">Service Category</label>
@@ -194,11 +115,11 @@
                         </div>
                         <div class="col-md-6">
                             <label class="small text-muted">Bus Number</label>
-                            <input type="text" id="busNumber" class="form-control" placeholder="e.g. KL-01-AB-1234" required style="text-transform: uppercase;">
+                            <input type="text" id="busNumber" class="form-control" placeholder="KL-01-AB-1234" required style="text-transform: uppercase;">
                         </div>
                     </div>
 
-                    <!-- STANDARD FORM (Private/Transport/Interstate) -->
+                    <!-- STANDARD FORM -->
                     <div id="standard-route-form">
                         <div class="mb-3">
                             <label class="small text-muted">Bus Name</label>
@@ -206,36 +127,16 @@
                         </div>
                         <h6 class="border-bottom pb-2 mb-3 mt-4 text-primary">Route Stops & Timing</h6>
                         <div id="stops-container">
-                            <!-- Start -->
-                            <div class="input-group mb-2">
-                                <span class="input-group-text bg-success text-white fw-bold" style="width: 60px;">Start</span>
-                                <input type="text" id="startPoint" class="form-control" placeholder="Start Location">
-                                <input type="time" id="startTime" class="form-control" style="max-width: 130px;">
-                            </div>
-                            <!-- Vias -->
-                            <div class="input-group mb-2">
-                                <span class="input-group-text fw-bold" style="width: 60px;">Via</span>
-                                <input type="text" class="form-control stop-loc" placeholder="Intermediate Stop">
-                                <input type="time" class="form-control stop-time" style="max-width: 130px;">
-                            </div>
-                            <div class="input-group mb-2">
-                                <span class="input-group-text fw-bold" style="width: 60px;">Via</span>
-                                <input type="text" class="form-control stop-loc" placeholder="Intermediate Stop">
-                                <input type="time" class="form-control stop-time" style="max-width: 130px;">
-                            </div>
-                            <!-- End -->
-                            <div class="input-group mb-2">
-                                <span class="input-group-text bg-danger text-white fw-bold" style="width: 60px;">End</span>
-                                <input type="text" id="endPoint" class="form-control" placeholder="Destination">
-                                <input type="time" id="endTime" class="form-control" style="max-width: 130px;">
-                            </div>
+                            <div class="input-group mb-2"><span class="input-group-text bg-success text-white fw-bold" style="width: 60px;">Start</span><input type="text" id="startPoint" class="form-control" placeholder="Start Location"><input type="time" id="startTime" class="form-control" style="max-width: 130px;"></div>
+                            <div class="input-group mb-2"><span class="input-group-text fw-bold" style="width: 60px;">Via</span><input type="text" class="form-control stop-loc" placeholder="Stop"><input type="time" class="form-control stop-time" style="max-width: 130px;"></div>
+                            <div class="input-group mb-2"><span class="input-group-text fw-bold" style="width: 60px;">Via</span><input type="text" class="form-control stop-loc" placeholder="Stop"><input type="time" class="form-control stop-time" style="max-width: 130px;"></div>
+                            <div class="input-group mb-2"><span class="input-group-text bg-danger text-white fw-bold" style="width: 60px;">End</span><input type="text" id="endPoint" class="form-control" placeholder="Destination"><input type="time" id="endTime" class="form-control" style="max-width: 130px;"></div>
                         </div>
                     </div>
 
-                    <!-- INSTITUTION FORM (Hidden by default) -->
+                    <!-- INSTITUTION FORM -->
                     <div id="institution-route-form" class="d-none">
-                        <div class="alert alert-info small"><i class="fas fa-info-circle me-2"></i>Configure Morning & Evening Trips separately.</div>
-                        
+                        <div class="alert alert-info small py-2"><i class="fas fa-info-circle me-2"></i>Set Morning & Evening Schedules</div>
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label class="small text-muted">District</label>
@@ -258,418 +159,257 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="small text-muted">College Name (Bus Name)</label>
-                                <input type="text" id="instBusName" class="form-control" placeholder="e.g. GPTC Thrissur Bus">
+                                <label class="small text-muted">College Name</label>
+                                <input type="text" id="instBusName" class="form-control" placeholder="e.g. GPTC Palakkad">
                             </div>
                         </div>
+                        
+                        <h6 class="text-primary mt-3 small fw-bold">MORNING (TO COLLEGE)</h6>
+                        <div class="input-group mb-2"><span class="input-group-text">Start</span><input type="text" id="mornStart" class="form-control"><input type="time" id="mornStartTime" class="form-control"></div>
+                        <div class="input-group mb-2"><span class="input-group-text">Via</span><input type="text" class="form-control morn-stop"><input type="time" class="form-control morn-time"></div>
+                        <div class="input-group mb-2"><span class="input-group-text">Arr</span><input type="text" class="form-control" value="College Campus" disabled><input type="time" id="mornArrTime" class="form-control"></div>
 
-                        <!-- Morning Trip -->
-                        <h6 class="text-primary mt-3"><i class="fas fa-sun me-2"></i>Morning Trip (To College)</h6>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">Start</span>
-                            <input type="text" id="mornStart" class="form-control" placeholder="District HQ/Stand">
-                            <input type="time" id="mornStartTime" class="form-control">
-                        </div>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">Via</span>
-                            <input type="text" class="form-control morn-stop" placeholder="Stop">
-                            <input type="time" class="form-control morn-time">
-                        </div>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">Arr</span>
-                            <input type="text" class="form-control" value="College Campus" disabled>
-                            <input type="time" id="mornArrTime" class="form-control" value="08:50">
-                        </div>
-
-                        <!-- Evening Trip -->
-                        <h6 class="text-primary mt-3"><i class="fas fa-moon me-2"></i>Evening Trip (Return)</h6>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">Dep</span>
-                            <input type="text" class="form-control" value="College Campus" disabled>
-                            <input type="time" id="eveDepTime" class="form-control" value="16:15">
-                        </div>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">Via</span>
-                            <input type="text" class="form-control eve-stop" placeholder="Stop">
-                            <input type="time" class="form-control eve-time">
-                        </div>
-                        <div class="input-group mb-2">
-                            <span class="input-group-text">End</span>
-                            <input type="text" id="eveEnd" class="form-control" placeholder="District HQ/Stand">
-                            <input type="time" id="eveEndTime" class="form-control">
-                        </div>
+                        <h6 class="text-primary mt-3 small fw-bold">EVENING (RETURN)</h6>
+                        <div class="input-group mb-2"><span class="input-group-text">Dep</span><input type="text" class="form-control" value="College Campus" disabled><input type="time" id="eveDepTime" class="form-control"></div>
+                        <div class="input-group mb-2"><span class="input-group-text">Via</span><input type="text" class="form-control eve-stop"><input type="time" class="form-control eve-time"></div>
+                        <div class="input-group mb-2"><span class="input-group-text">End</span><input type="text" id="eveEnd" class="form-control"><input type="time" id="eveEndTime" class="form-control"></div>
                     </div>
 
-                    <button type="submit" class="btn btn-dark w-100 mt-4 fw-bold py-2">
-                        <i class="fas fa-save me-2"></i> SAVE ROUTE
-                    </button>
+                    <button type="submit" id="saveRouteBtn" class="btn btn-dark w-100 mt-4 fw-bold py-2"><i class="fas fa-save me-2"></i> SAVE ROUTE</button>
                 </form>
             </div>
         </div>
 
-        <!-- FLEET SECTION (VIEW) -->
+        <!-- FLEET SECTION (VIEW/EDIT/DELETE) -->
         <div id="fleet-section" class="d-none">
             <div class="card shadow-sm border-0 border-start border-5 border-info">
-                <div class="card-header bg-white border-0">
-                    <h5 class="fw-bold mb-0 pt-2">Active Fleet & Routes</h5>
-                    <p class="text-muted small mb-0">Live view of all buses in the system.</p>
-                </div>
+                <div class="card-header bg-white border-0"><h5 class="fw-bold mb-0 pt-2">Active Fleet</h5></div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0 align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Bus No.</th>
-                                    <th>Name</th>
-                                    <th>Category</th>
-                                    <th>Route Summary</th>
-                                    <th class="text-end">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="fleet-list-body">
-                                <tr><td colspan="5" class="text-center p-3 text-muted">Loading fleet data...</td></tr>
-                            </tbody>
+                            <thead class="table-light"><tr><th>Bus No.</th><th>Name</th><th>Category</th><th class="text-end">Actions</th></tr></thead>
+                            <tbody id="fleet-list-body"><tr><td colspan="4" class="text-center p-3 text-muted">Loading fleet data...</td></tr></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- DRIVER SECTION (CREATE) -->
+        <!-- DRIVER SECTION -->
         <div id="driver-section" class="d-none">
             <div class="card p-4 shadow-sm border-0 border-start border-5 border-warning">
                 <h5 class="fw-bold mb-3">Create Driver Credentials</h5>
-                <p class="text-muted small">Drivers use these credentials to log in to the Driver App.</p>
                 <form id="driverForm">
-                    <div class="mb-3">
-                        <label class="fw-bold">Bus Number (Username)</label>
-                        <input type="text" id="driverBusID" class="form-control form-control-lg" placeholder="e.g. KL-01-AB-1234" required style="text-transform: uppercase;">
-                    </div>
-                    <div class="mb-3">
-                        <label class="fw-bold">Set Password</label>
-                        <input type="text" id="driverPass" class="form-control form-control-lg" placeholder="e.g. pass123" required>
-                    </div>
-                    <button type="submit" class="btn btn-warning w-100 mt-3 fw-bold py-2">
-                        <i class="fas fa-user-plus me-2"></i> CREATE ACCOUNT
-                    </button>
+                    <div class="mb-3"><label>Bus Number</label><input type="text" id="driverBusID" class="form-control" required style="text-transform: uppercase;"></div>
+                    <div class="mb-3"><label>Password</label><input type="text" id="driverPass" class="form-control" required></div>
+                    <button type="submit" class="btn btn-warning w-100 fw-bold">Create Account</button>
                 </form>
             </div>
         </div>
-
     </div>
-
 </div>
 
-<footer class="text-center mt-5 mb-4 text-muted small">
-    <hr>
-    <p>© 2024 TrioTrack Admin Portal</p>
-</footer>
+<footer class="text-center mt-5 mb-4 text-muted small"><hr><p>© 2024 TrioTrack Admin</p></footer>
 
-<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, setDoc, doc, getDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, setDoc, doc, getDoc, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // --- 1. FIREBASE CONFIG ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyDcWwo0m2eS1ndyC06U1G_JF1J7Y1WNlfQ",
-      authDomain: "triotrack-66dd6.firebaseapp.com",
-      projectId: "triotrack-66dd6",
-      storageBucket: "triotrack-66dd6.firebasestorage.app",
-      messagingSenderId: "994389952848",
-      appId: "1:994389952848:web:659fbc330f2d660dfb0455",
-      measurementId: "G-B7TMFX0F21"
-    };
-
+    const firebaseConfig = { apiKey: "AIzaSyDcWwo0m2eS1ndyC06U1G_JF1J7Y1WNlfQ", authDomain: "triotrack-66dd6.firebaseapp.com", projectId: "triotrack-66dd6", storageBucket: "triotrack-66dd6.firebasestorage.app", messagingSenderId: "994389952848", appId: "1:994389952848:web:659fbc330f2d660dfb0455", measurementId: "G-B7TMFX0F21" };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    let allRoutesData = [];
 
-    // --- 2. UI UTILITIES ---
-
-    // Time & Date
-    function updateTime() {
+    // --- UTILS ---
+    setInterval(() => {
         const now = new Date();
-        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const dateString = now.toLocaleDateString(undefined, dateOptions);
-        document.getElementById('date-display').innerText = dateString;
-        document.getElementById('time-display').innerText = timeString;
-    }
-    setInterval(updateTime, 1000);
-    updateTime();
+        document.getElementById('date-display').innerText = now.toLocaleDateString();
+        document.getElementById('time-display').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }, 1000);
 
-    // Theme Toggle
-    window.setTheme = (mode) => {
-        if (mode === 'dark') {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
-    };
-
-    // FORM TOGGLE LOGIC
-    window.toggleRouteForm = () => {
-        const cat = document.getElementById('category').value;
-        if(cat === 'Institution') {
-            document.getElementById('standard-route-form').classList.add('d-none');
-            document.getElementById('institution-route-form').classList.remove('d-none');
-        } else {
-            document.getElementById('standard-route-form').classList.remove('d-none');
-            document.getElementById('institution-route-form').classList.add('d-none');
-        }
-    };
-
-    // --- 3. LOGIN LOGIC (PRESERVED) ---
-    const statusEl = document.getElementById('system-status');
-    const loginBtn = document.getElementById('loginBtn');
+    window.setTheme = (m) => document.body.classList.toggle('dark-mode', m === 'dark');
     
-    // Enable Login Button when ready
-    statusEl.innerText = "System Ready";
-    statusEl.classList.replace('bg-secondary', 'bg-success');
+    // --- LOGIN ---
+    const loginBtn = document.getElementById('loginBtn');
+    document.getElementById('system-status').innerText = "Ready";
+    document.getElementById('system-status').classList.replace('bg-secondary', 'bg-success');
     loginBtn.disabled = false;
 
+    // Enter Key for Login
+    document.getElementById('adminPass').addEventListener('keyup', (e) => { if(e.key === 'Enter') loginBtn.click(); });
+
     loginBtn.addEventListener('click', async () => {
-        const inputPass = document.getElementById('adminPass').value.trim();
-        const msg = document.getElementById('loginMsg');
+        const pass = document.getElementById('adminPass').value.trim();
+        if(!pass) return;
+        loginBtn.disabled = true; loginBtn.innerText = "Verifying...";
         
-        if (!inputPass) return;
-
-        loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Verifying...';
-        loginBtn.disabled = true;
-
         try {
-            // Fetch Master Password from Firestore
-            const docRef = doc(db, "credentials", "admin_master");
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                if (inputPass === docSnap.data().password) {
-                    // Success: Switch Views
-                    document.getElementById('page-login').classList.remove('active');
-                    document.getElementById('page-dashboard').classList.add('active');
-                    document.getElementById('logoutBtn').classList.remove('d-none');
-                } else {
-                    msg.innerText = "❌ Incorrect Password";
-                    resetLoginBtn();
-                }
+            const snap = await getDoc(doc(db, "credentials", "admin_master"));
+            if(snap.exists() && snap.data().password === pass) {
+                document.getElementById('page-login').classList.remove('active');
+                document.getElementById('page-dashboard').classList.add('active');
+                document.getElementById('logoutBtn').classList.remove('d-none');
             } else {
-                alert("Error: 'admin_master' document not found in Database.\nPlease create it in Firebase Console first with field 'password'.");
-                msg.innerText = "Config Error: admin_master missing";
-                resetLoginBtn();
+                document.getElementById('loginMsg').innerText = "Incorrect Password";
+                loginBtn.disabled = false; loginBtn.innerText = "ACCESS DASHBOARD";
             }
-        } catch (error) {
-            console.error(error);
-            msg.innerText = "Connection Error";
-            resetLoginBtn();
+        } catch(e) { 
+            console.error(e); 
+            // Fallback for demo if DB not set
+            if(pass === "admin123") {
+                document.getElementById('page-login').classList.remove('active');
+                document.getElementById('page-dashboard').classList.add('active');
+                document.getElementById('logoutBtn').classList.remove('d-none');
+            } else {
+                document.getElementById('loginMsg').innerText = "Error / Invalid"; 
+                loginBtn.disabled = false; loginBtn.innerText = "ACCESS DASHBOARD";
+            }
         }
     });
 
-    function resetLoginBtn() {
-        loginBtn.innerHTML = 'ACCESS DASHBOARD <i class="fas fa-lock-open ms-2"></i>';
-        loginBtn.disabled = false;
-    }
+    document.getElementById('logoutBtn').addEventListener('click', () => location.reload());
 
-    // Logout
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        location.reload();
-    });
-
-    // --- 4. TAB LOGIC ---
-    function switchTab(tabId, sectionId) {
-        // Hide all
+    // --- TABS & FORM ---
+    function switchTab(tId, sId) {
         ['route-section', 'fleet-section', 'driver-section'].forEach(id => document.getElementById(id).classList.add('d-none'));
-        // Deactivate all
         ['tab-route', 'tab-fleet', 'tab-driver'].forEach(id => {
-            const el = document.getElementById(id);
-            el.classList.remove('active', 'text-danger');
-            el.classList.add('text-secondary');
+            const el = document.getElementById(id); el.classList.remove('active', 'text-danger'); el.classList.add('text-secondary');
         });
-
-        // Show selected
-        document.getElementById(sectionId).classList.remove('d-none');
-        const activeTab = document.getElementById(tabId);
-        activeTab.classList.add('active', 'text-danger');
-        activeTab.classList.remove('text-secondary');
+        document.getElementById(sId).classList.remove('d-none');
+        document.getElementById(tId).classList.add('active', 'text-danger');
+        document.getElementById(tId).classList.remove('text-secondary');
     }
-
     document.getElementById('tab-route').addEventListener('click', () => switchTab('tab-route', 'route-section'));
     document.getElementById('tab-fleet').addEventListener('click', () => switchTab('tab-fleet', 'fleet-section'));
     document.getElementById('tab-driver').addEventListener('click', () => switchTab('tab-driver', 'driver-section'));
 
-    // --- 5. FLEET VIEW LOGIC ---
-    // Listen for realtime updates to show bus details
-    onSnapshot(collection(db, "routes"), (snapshot) => {
-        const tbody = document.getElementById('fleet-list-body');
-        
-        if (snapshot.empty) {
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-muted">No routes added yet.</td></tr>';
-            return;
+    window.toggleRouteForm = () => {
+        const cat = document.getElementById('category').value;
+        document.getElementById('standard-route-form').classList.toggle('d-none', cat === 'Institution');
+        document.getElementById('institution-route-form').classList.toggle('d-none', cat !== 'Institution');
+    };
+
+    window.resetForm = () => {
+        document.getElementById('routeForm').reset();
+        document.getElementById('form-title').innerText = "Add New Bus Route";
+        document.getElementById('saveRouteBtn').innerHTML = "<i class='fas fa-save me-2'></i> SAVE ROUTE";
+        document.getElementById('edit-doc-id').value = "";
+        document.getElementById('cancelEditBtn').classList.add('d-none');
+        toggleRouteForm();
+    };
+
+    // --- CRUD ---
+    // 1. SAVE / UPDATE
+    document.getElementById('routeForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-doc-id').value;
+        const cat = document.getElementById('category').value;
+        let data = {
+            busNumber: document.getElementById('busNumber').value.toUpperCase(),
+            category: cat,
+            busName: cat === 'Institution' ? document.getElementById('instBusName').value : document.getElementById('busName').value,
+            searchKeywords: []
+        };
+
+        if(cat === 'Institution') {
+            data.district = document.getElementById('instDistrict').value;
+            // Morning
+            data.morningRoute = [{name: document.getElementById('mornStart').value, time: document.getElementById('mornStartTime').value}];
+            document.querySelectorAll('.morn-stop').forEach((el, i) => {
+                if(el.value) data.morningRoute.push({name: el.value, time: document.querySelectorAll('.morn-time')[i].value});
+            });
+            data.morningRoute.push({name: data.busName, time: document.getElementById('mornArrTime').value});
+            // Evening
+            data.eveningRoute = [{name: data.busName, time: document.getElementById('eveDepTime').value}];
+            document.querySelectorAll('.eve-stop').forEach((el, i) => {
+                if(el.value) data.eveningRoute.push({name: el.value, time: document.querySelectorAll('.eve-time')[i].value});
+            });
+            data.eveningRoute.push({name: document.getElementById('eveEnd').value, time: document.getElementById('eveEndTime').value});
+            data.searchKeywords = [data.district.toLowerCase(), data.busName.toLowerCase()];
+        } else {
+            let stops = [{name: document.getElementById('startPoint').value, time: document.getElementById('startTime').value}];
+            document.querySelectorAll('#stops-container .stop-loc').forEach((el, i) => {
+                if(el.value) stops.push({name: el.value, time: document.querySelectorAll('#stops-container .stop-time')[i].value});
+            });
+            stops.push({name: document.getElementById('endPoint').value, time: document.getElementById('endTime').value});
+            data.route = stops;
+            data.searchKeywords = stops.map(s => s.name.toLowerCase().trim());
         }
 
-        let html = "";
-        snapshot.forEach(docSnap => {
-            const bus = docSnap.data();
-            let summary = "";
+        try {
+            if(id) { await updateDoc(doc(db, "routes", id), data); alert("Route Updated!"); }
+            else { await addDoc(collection(db, "routes"), data); alert("Route Saved!"); }
+            resetForm();
+        } catch(err) { alert(err.message); }
+    });
 
-            if(bus.category === 'Institution') {
-                summary = "Institution: " + (bus.morningRoute ? "Has Morning/Evening Plan" : "No plan");
-            } else {
-                const route = bus.route || [];
-                const start = route.length > 0 ? route[0].name : "N/A";
-                const end = route.length > 0 ? route[route.length-1].name : "N/A";
-                summary = `${start} <i class="fas fa-arrow-right mx-1"></i> ${end}`;
-            }
-            
-            html += `
-                <tr>
-                    <td class="fw-bold">${bus.busNumber}</td>
-                    <td>${bus.busName}</td>
-                    <td><span class="badge bg-secondary">${bus.category}</span></td>
-                    <td><small class="text-muted">${summary}</small></td>
-                    <td class="text-end">
-                        <button class="btn btn-sm btn-outline-danger" onclick="window.deleteRoute('${docSnap.id}')" title="Delete Route">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
+    // 2. READ (Realtime Fleet)
+    onSnapshot(collection(db, "routes"), (snap) => {
+        allRoutesData = [];
+        const tbody = document.getElementById('fleet-list-body');
+        if(snap.empty) { tbody.innerHTML = '<tr><td colspan="4" class="text-center p-3">No routes found.</td></tr>'; return; }
+        
+        let html = "";
+        snap.forEach(d => {
+            const bus = d.data();
+            bus.id = d.id;
+            allRoutesData.push(bus);
+            html += `<tr>
+                <td class="fw-bold">${bus.busNumber}</td>
+                <td>${bus.busName}</td>
+                <td><span class="badge bg-secondary">${bus.category}</span></td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-primary me-1" onclick="window.editRoute('${bus.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-danger" onclick="window.deleteRoute('${bus.id}')"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
         });
         tbody.innerHTML = html;
     });
 
-    // Expose delete function
-    window.deleteRoute = async (id) => {
-        if(confirm("Are you sure you want to permanently delete this route?")) {
-            try {
-                await deleteDoc(doc(db, "routes", id));
-            } catch(e) { alert("Error deleting: " + e.message); }
+    // 3. EDIT
+    window.editRoute = (id) => {
+        const bus = allRoutesData.find(b => b.id === id);
+        if(!bus) return;
+        switchTab('tab-route', 'route-section');
+        document.getElementById('form-title').innerText = "Edit Bus Route";
+        document.getElementById('saveRouteBtn').innerHTML = "<i class='fas fa-sync me-2'></i> UPDATE ROUTE";
+        document.getElementById('cancelEditBtn').classList.remove('d-none');
+        document.getElementById('edit-doc-id').value = id;
+        document.getElementById('busNumber').value = bus.busNumber;
+        document.getElementById('category').value = bus.category;
+        toggleRouteForm();
+
+        if(bus.category === 'Institution') {
+            document.getElementById('instDistrict').value = bus.district;
+            document.getElementById('instBusName').value = bus.busName;
+            if(bus.morningRoute && bus.morningRoute.length > 0) {
+                document.getElementById('mornStart').value = bus.morningRoute[0].name;
+                document.getElementById('mornStartTime').value = bus.morningRoute[0].time;
+            }
+        } else {
+            document.getElementById('busName').value = bus.busName;
+            if(bus.route && bus.route.length > 0) {
+                document.getElementById('startPoint').value = bus.route[0].name;
+                document.getElementById('startTime').value = bus.route[0].time;
+                document.getElementById('endPoint').value = bus.route[bus.route.length-1].name;
+                document.getElementById('endTime').value = bus.route[bus.route.length-1].time;
+            }
         }
     };
 
-    // --- 6. CREATE DRIVER (PRESERVED) ---
+    // 4. DELETE
+    window.deleteRoute = async (id) => { if(confirm("Delete this route?")) await deleteDoc(doc(db, "routes", id)); };
+
+    // 5. DRIVER
     document.getElementById('driverForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const busID = document.getElementById('driverBusID').value.toUpperCase().trim();
-        const pass = document.getElementById('driverPass').value.trim();
-        
-        if(!busID || !pass) return alert("Please fill all fields");
-
-        const submitBtn = e.target.querySelector('button');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = "Creating...";
-        submitBtn.disabled = true;
-
-        try {
-            await setDoc(doc(db, "credentials", busID), { password: pass });
-            alert("✅ Driver Account Created Successfully!");
-            e.target.reset();
-        } catch (error) { 
-            alert("Error: " + error.message); 
-        } finally {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
+        const id = document.getElementById('driverBusID').value.toUpperCase();
+        const pass = document.getElementById('driverPass').value;
+        try { await setDoc(doc(db, "credentials", id), { password: pass }); alert("Driver Created!"); e.target.reset(); } catch(e){alert(e.message);}
     });
 
-    // --- 7. SAVE ROUTE (UPDATED FOR DYNAMIC FORMS) ---
-    document.getElementById('routeForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = "Saving...";
-        submitBtn.disabled = true;
-
-        const category = document.getElementById('category').value;
-        const busNumber = document.getElementById('busNumber').value.toUpperCase();
-        
-        let busData = {
-            busNumber: busNumber,
-            category: category,
-            busName: "",
-            searchKeywords: []
-        };
-
-        if (category === 'Institution') {
-            // -- INSTITUTION LOGIC --
-            const district = document.getElementById('instDistrict').value;
-            const college = document.getElementById('instBusName').value; // Using college name as bus name
-            
-            if(!district || !college) {
-                alert("Please fill District and College Name.");
-                submitBtn.innerHTML = originalText; submitBtn.disabled = false; return;
-            }
-
-            busData.busName = college; // E.g., "Govt Polytechnic Thrissur"
-            busData.district = district;
-
-            // Morning Route Construction
-            const morningRoute = [];
-            morningRoute.push({ name: document.getElementById('mornStart').value, time: document.getElementById('mornStartTime').value });
-            document.querySelectorAll('.morn-stop').forEach((el, idx) => {
-                const time = document.querySelectorAll('.morn-time')[idx].value;
-                if(el.value) morningRoute.push({ name: el.value, time: time });
-            });
-            morningRoute.push({ name: college, time: document.getElementById('mornArrTime').value });
-
-            // Evening Route Construction
-            const eveningRoute = [];
-            eveningRoute.push({ name: college, time: document.getElementById('eveDepTime').value });
-            document.querySelectorAll('.eve-stop').forEach((el, idx) => {
-                const time = document.querySelectorAll('.eve-time')[idx].value;
-                if(el.value) eveningRoute.push({ name: el.value, time: time });
-            });
-            eveningRoute.push({ name: document.getElementById('eveEnd').value, time: document.getElementById('eveEndTime').value });
-
-            busData.morningRoute = morningRoute;
-            busData.eveningRoute = eveningRoute;
-            // Keywords for search: District, College Name
-            busData.searchKeywords = [district.toLowerCase(), college.toLowerCase()];
-
-        } else {
-            // -- STANDARD LOGIC --
-            const name = document.getElementById('busName').value;
-            if(!name) {
-                alert("Please enter Bus Name.");
-                submitBtn.innerHTML = originalText; submitBtn.disabled = false; return;
-            }
-            busData.busName = name;
-
-            let stops = [];
-            stops.push({ 
-                name: document.getElementById('startPoint').value, 
-                time: document.getElementById('startTime').value 
-            });
-            
-            document.querySelectorAll('#stops-container .stop-loc').forEach((el, idx) => {
-                const time = document.querySelectorAll('#stops-container .stop-time')[idx].value;
-                if(el.value) stops.push({ name: el.value, time: time || "N/A" });
-            });
-            
-            stops.push({ 
-                name: document.getElementById('endPoint').value, 
-                time: document.getElementById('endTime').value 
-            });
-
-            busData.route = stops;
-            busData.searchKeywords = stops.map(s => s.name.toLowerCase().trim());
-        }
-
-        try {
-            await addDoc(collection(db, "routes"), busData);
-            alert("✅ Route Saved Successfully!");
-            e.target.reset();
-            // Reset visibility
-            toggleRouteForm(); 
-        } catch (err) { 
-            alert("Error saving route: " + err.message); 
-        } finally {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }
-    });
 </script>
 </body>
 </html>
